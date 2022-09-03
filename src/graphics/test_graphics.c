@@ -1,9 +1,9 @@
 #include "cunk/graphics.h"
 
+#include "GL/glew.h"
+
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
-
-#include "GL/gl.h"
 
 #include <stdio.h>
 
@@ -12,7 +12,16 @@ int main() {
     glfwInit();
     w = glfwCreateWindow(640, 480, "glfw werks", NULL, NULL);
     glfwMakeContextCurrent(w);
-    printf("Hello, World!\n");
+    glewInit();
+
+    const char* version = glGetString(GL_VERSION);
+    const char* vendor = glGetString(GL_VENDOR);
+
+    printf("Running on OpenGL\n");
+    printf("Version: %s\n", version);
+    printf("Vendor: %s\n", vendor);
+    fflush(stdout);
+
     // glfwDestroyWindow(w);
     while (!glfwWindowShouldClose(w)) {
         glClearColor(0.0f, 0.5f, 0.4f, 1.0f);
