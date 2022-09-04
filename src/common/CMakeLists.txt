@@ -1,1 +1,1 @@
-add_library(common STATIC util.c)
+add_library(common STATIC util.c io.c)
