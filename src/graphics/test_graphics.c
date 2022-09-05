@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <math.h>
 
 INCTXT(test_fs, "test.fs");
@@ -120,17 +121,33 @@ static void init_cube() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData), geometryData, GL_STATIC_DRAW);
 }
 
-static float angle = 0.f;
-
 static struct {
     GLFWwindow* handle;
     int width, height;
 } window;
 
+struct {
+    bool wireframe;
+} config;
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (action != GLFW_PRESS)
+        return;
+
+    switch (key) {
+        case GLFW_KEY_1:
+            config.wireframe ^= true;
+            break;
+        default: break;
+    }
+}
+
+static float angle = 0.f;
+
 static void draw_triangle() {
     glUseProgram(program);
 
-    if (fmodf(angle, 1.0f) > 0.5f)
+    if (config.wireframe)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -183,6 +200,7 @@ int main() {
     glfwInit();
     window.handle = glfwCreateWindow(640, 480, "glfw werks", NULL, NULL);
     glfwMakeContextCurrent(window.handle);
+    glfwSetKeyCallback(window.handle, key_callback);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
