@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <math.h>
 
 INCTXT(test_fs, "test.fs");
 INCTXT(test_vs, "test.vs");
@@ -155,7 +156,7 @@ static void draw_triangle() {
         char name[32];
         int size;
         GLenum type;
-        glGetActiveAttrib(program, i, 32, &len, &size, &type, &name);
+        glGetActiveAttrib(program, i, 32, &len, &size, &type, (char*) &name);
         int loc = glGetAttribLocation(program, name);
         // fprintf(stderr, "attribute %s %d in slot %d location %d\n", name, size, i, loc);
     }
