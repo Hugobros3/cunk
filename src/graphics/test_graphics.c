@@ -1,7 +1,7 @@
 #include "cunk/graphics.h"
 #include "../common/common_private.h"
 
-#include "GL/glew.h"
+#include "glad/glad.h"
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -98,7 +98,8 @@ int main() {
     glfwInit();
     w = glfwCreateWindow(640, 480, "glfw werks", NULL, NULL);
     glfwMakeContextCurrent(w);
-    glewInit();
+
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
     const char* version = glGetString(GL_VERSION);
     const char* vendor = glGetString(GL_VENDOR);
