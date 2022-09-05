@@ -14,16 +14,18 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+#include <stddef.h>
 
 INCTXT(test_fs, "test.fs");
 INCTXT(test_vs, "test.vs");
 
+#define GL_CHECK(x, f) { x; GLint errcode = glGetError(); if (errcode != GL_NO_ERROR) { fprintf(stderr, "GL error after: " #x); f; } }
+
 static void print_shader_log(GLuint shader) {
     GLsizei info_log_length;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
-    char* buf = malloc(info_log_length + 1);
-    glGetProgramInfoLog(shader, info_log_length, NULL, buf);
+    GL_CHECK(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length), return);
+    char* buf = calloc(info_log_length + 1, 1);
+    glGetShaderInfoLog(shader, info_log_length, NULL, buf);
     buf[info_log_length] = '\0';
     fprintf(stderr, "Shader compilation log: %s\n", buf);
     free(buf);
@@ -33,7 +35,7 @@ static void print_program_log(GLuint program) {
     GLsizei info_log_length;
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
     char* buf = malloc(info_log_length + 1);
-    glGetShaderInfoLog(program, info_log_length, NULL, buf);
+    glGetProgramInfoLog(program, info_log_length, NULL, buf);
     buf[info_log_length] = '\0';
     fprintf(stderr, "Program compilation log: %s\n", buf);
     free(buf);
@@ -43,13 +45,13 @@ static GLuint load_test_program() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     const GLchar* vss [] = { test_vs_data };
     glShaderSource(vertexShader, 1, vss, &test_vs_size);
-    glCompileShader(vertexShader);
+    GL_CHECK(glCompileShader(vertexShader), /* */);
     print_shader_log(vertexShader);
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     const GLchar* fss[] = { test_fs_data };
-    glShaderSource(fragmentShader, 1, (const GLchar* []) { test_fs_data }, &test_fs_size);
-    glCompileShader(fragmentShader);
+    glShaderSource(fragmentShader, 1, fss, &test_fs_size);
+    GL_CHECK(glCompileShader(fragmentShader), /* */ );
     print_shader_log(fragmentShader);
 
     GLuint program = glCreateProgram();
@@ -58,6 +60,9 @@ static GLuint load_test_program() {
     glLinkProgram(program);
     print_program_log(program);
     return program;
+
+    failure:
+    abort();
 }
 
 static GLuint program;
@@ -112,17 +117,9 @@ static void init_cube() {
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData), geometryData, GL_STATIC_DRAW);
-
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
-
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, NULL);
 }
 
-static float angle = 0.0;
+static float angle = 0.f;
 
 static struct {
     GLFWwindow* handle;
@@ -132,10 +129,10 @@ static struct {
 static void draw_triangle() {
     glUseProgram(program);
 
-    if (fmodf(angle, 1.0f) > 0.5f)
+    /*if (fmodf(angle, 1.0f) > 0.5f)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 
     glEnable(GL_CULL_FACE);
 
@@ -150,6 +147,13 @@ static void draw_triangle() {
     glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_FALSE, matrix.arr);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, NULL);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (sizeof(float) * 3));
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
