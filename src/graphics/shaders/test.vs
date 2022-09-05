@@ -2,7 +2,6 @@
 
 attribute vec3 vertexIn;
 attribute vec2 texCoordIn;
-//#define vertexIn gl_Vertex.xyz
 
 uniform mat4 myMatrix;
 

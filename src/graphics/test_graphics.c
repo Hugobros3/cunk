@@ -129,12 +129,13 @@ static struct {
 static void draw_triangle() {
     glUseProgram(program);
 
-    /*if (fmodf(angle, 1.0f) > 0.5f)
+    if (fmodf(angle, 1.0f) > 0.5f)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
 
     angle = angle + 0.01f;
 
@@ -146,15 +147,35 @@ static void draw_triangle() {
 
     glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_FALSE, matrix.arr);
 
+    GLsizei num_attributes;
+    glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &num_attributes);
+
+    for (int i = 0; i < num_attributes; i++) {
+        size_t len;
+        char name[32];
+        int size;
+        GLenum type;
+        glGetActiveAttrib(program, i, 32, &len, &size, &type, &name);
+        int loc = glGetAttribLocation(program, name);
+        // fprintf(stderr, "attribute %s %d in slot %d location %d\n", name, size, i, loc);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // 3dlabs's driver seems unhappy drawing without a vertex array bound
+    glEnableClientState(GL_VERTEX_ARRAY);
+    float dummy[] = { 0 };
+    glVertexPointer(3, GL_FLOAT, sizeof(float) * 1, dummy );
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, NULL);
+    glEnableVertexAttribArray(glGetAttribLocation(program, "vertexIn"));
+    glVertexAttribPointer(glGetAttribLocation(program, "vertexIn"), 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, NULL);
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (sizeof(float) * 3));
+    glEnableVertexAttribArray(glGetAttribLocation(program, "texCoordIn"));
+    glVertexAttribPointer(glGetAttribLocation(program, "texCoordIn"), 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (sizeof(float) * 3));
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 36), return);
 }
 
 int main() {
@@ -184,7 +205,7 @@ int main() {
         glViewport(0, 0, window.width, window.height);
 
         glClearColor(0.0f, 0.5f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         draw_triangle();
 
