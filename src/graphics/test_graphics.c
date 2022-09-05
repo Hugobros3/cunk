@@ -124,6 +124,11 @@ static void init_cube() {
 
 static float angle = 0.0;
 
+static struct {
+    GLFWwindow* handle;
+    int width, height;
+} window;
+
 static void draw_triangle() {
     glUseProgram(program);
 
@@ -139,19 +144,19 @@ static void draw_triangle() {
     Mat4f matrix = identity_mat4f;
     matrix = mul_mat4f(rotate_axis_mat4f(1, angle), matrix);
     matrix = mul_mat4f(translate_mat4f((Vec3f) { 0.f, 0.f, -3.f }), matrix);
-    matrix = mul_mat4f(perspective_mat4f(640/480.f, 90.0f, 0.1f, 100.f), matrix);
+    float ratio = ((float) window.width) / ((float) window.height);
+    matrix = mul_mat4f(perspective_mat4f(ratio, 90.0f, 0.1f, 100.f), matrix);
 
     glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_FALSE, matrix.arr);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(geometryData) / sizeof(float));
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 int main() {
-    GLFWwindow* w;
     glfwInit();
-    w = glfwCreateWindow(640, 480, "glfw werks", NULL, NULL);
-    glfwMakeContextCurrent(w);
+    window.handle = glfwCreateWindow(640, 480, "glfw werks", NULL, NULL);
+    glfwMakeContextCurrent(window.handle);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
@@ -168,13 +173,18 @@ int main() {
     fflush(stdout);
     fflush(stderr);
 
-    while (!glfwWindowShouldClose(w)) {
+    glfwSwapInterval(1);
+
+    while (!glfwWindowShouldClose(window.handle)) {
+        glfwGetFramebufferSize(window.handle, &window.width, &window.height);
+        glViewport(0, 0, window.width, window.height);
+
         glClearColor(0.0f, 0.5f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         draw_triangle();
 
-        glfwSwapBuffers(w);
+        glfwSwapBuffers(window.handle);
         glfwPollEvents();
     }
     glfwTerminate();
