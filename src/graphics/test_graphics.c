@@ -1,4 +1,6 @@
 #include "cunk/graphics.h"
+#include "cunk/math.h"
+
 #include "../common/common_private.h"
 
 #include "glad/glad.h"
@@ -61,13 +63,55 @@ static GLuint load_test_program() {
 static GLuint program;
 static GLuint vbo;
 
-static void init_triangle() {
-    float geometryData[] = {-0.5F, -0.5F, 0.5F, -0.5F, 0.F, 0.5F};
+float geometryData[] = {
+    -1.0, -1.0, -1.0,   0.0, 0.0,
+    -1.0,  1.0,  1.0,   1.0, 1.0,
+    -1.0,  1.0, -1.0,   0.0, 1.0,
+    -1.0,  1.0,  1.0,   1.0, 1.0,
+    -1.0, -1.0, -1.0,   0.0, 0.0,
+    -1.0, -1.0,  1.0,   1.0, 0.0,
 
+    -1.0, -1.0,  1.0,   0.0, 0.0,
+    1.0,  -1.0,  1.0,   1.0, 0.0,
+    1.0,   1.0,  1.0,   1.0, 1.0,
+    -1.0, -1.0,  1.0,   0.0, 0.0,
+    1.0,   1.0,  1.0,   1.0, 1.0,
+    -1.0,  1.0,  1.0,   0.0, 1.0,
+
+    1.0,  -1.0, -1.0,   1.0, 0.0,
+    1.0,   1.0, -1.0,   1.0, 1.0,
+    1.0,   1.0,  1.0,   0.0, 1.0,
+    1.0,  -1.0, -1.0,   1.0, 0.0,
+    1.0,   1.0,  1.0,   0.0, 1.0,
+    1.0,  -1.0,  1.0,   0.0, 0.0,
+
+    -1.0, -1.0, -1.0,   1.0, 0.0,
+    1.0,   1.0, -1.0,   0.0, 1.0,
+    1.0,  -1.0, -1.0,   0.0, 0.0,
+    -1.0, -1.0, -1.0,   1.0, 0.0,
+    -1.0,  1.0, -1.0,   1.0, 1.0,
+    1.0,   1.0, -1.0,   0.0, 1.0,
+
+    -1.0,  1.0, -1.0,   0.0, 1.0,
+    1.0,   1.0,  1.0,   1.0, 0.0,
+    1.0,   1.0, -1.0,   1.0, 1.0,
+    -1.0,  1.0, -1.0,   0.0, 1.0,
+    -1.0,  1.0,  1.0,   0.0, 0.0,
+    1.0,   1.0,  1.0,   1.0, 0.0,
+
+    -1.0, -1.0, -1.0,   0.0, 0.0,
+    1.0,  -1.0, -1.0,   1.0, 0.0,
+    1.0,  -1.0,  1.0,   1.0, 1.0,
+    -1.0, -1.0, -1.0,   0.0, 0.0,
+    1.0,  -1.0,  1.0,   1.0, 1.0,
+    -1.0, -1.0,  1.0,   0.0, 1.0,
+};
+
+static void init_cube() {
     glGenBuffers(1, &vbo);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 3 * 2 * sizeof(float), geometryData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData), geometryData, GL_STATIC_DRAW);
 
     //glGenVertexArrays(1, &vao);
     //glBindVertexArray(vao);
@@ -75,22 +119,32 @@ static void init_triangle() {
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, NULL);
 }
 
 static float angle = 0.0;
 
 static void draw_triangle() {
     glUseProgram(program);
-    // glUniform4f(myColorLocation, 1.0F, 1.0F, 0.0F, 1.0F);
+
+    if (fmodf(angle, 1.0f) > 0.5f)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    glEnable(GL_CULL_FACE);
 
     angle = angle + 0.01f;
-    GLint myPositionLocation = glGetUniformLocation(program, "myPosition");
-    glUniform2f(myPositionLocation, sin(angle) * 0.4f, cos(angle) * 0.4f);
 
-    // glBindVertexArray(vao);
+    Mat4f matrix = identity_mat4f;
+    matrix = mul_mat4f(rotate_axis_mat4f(1, angle), matrix);
+    matrix = mul_mat4f(translate_mat4f((Vec3f) { 0.f, 0.f, -3.f }), matrix);
+    matrix = mul_mat4f(perspective_mat4f(640/480.f, 90.0f, 0.1f, 100.f), matrix);
+
+    glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_FALSE, matrix.arr);
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, sizeof(geometryData) / sizeof(float));
 }
 
 int main() {
@@ -109,7 +163,7 @@ int main() {
     printf("Vendor: %s\n", vendor);
 
     program = load_test_program();
-    init_triangle();
+    init_cube();
 
     fflush(stdout);
     fflush(stderr);
