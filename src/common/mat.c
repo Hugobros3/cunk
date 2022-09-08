@@ -11,10 +11,6 @@ Mat4f transpose_mat4f(Mat4f src) {
     };
 }
 
-Mat4f look_at_mat4f(Vec3f eye, Vec3f at, Vec3f up) {
-    Vec3f dir = vec3f_elemwise_sub(eye, at);
-}
-
 Mat4f perspective_mat4f(float a, float fov, float n, float f) {
     float pi = M_PI;
     float s = 1.0f / tanf(fov * 0.5f * (pi / 180.0f));
@@ -59,6 +55,22 @@ Mat4f mul_mat4f(Mat4f l, Mat4f r) {
 #define e(bc, br) dst.a(bc, br) = t(bc, br, 0) + t(bc, br, 1) + t(bc, br, 2) + t(bc, br, 3);
 #define row(c) e(c, 0) e(c, 1) e(c, 2) e(c, 3)
 #define genmul() row(0) row(1) row(2) row(3)
+    genmul()
+    return dst;
+#undef a
+#undef t
+#undef e
+#undef row
+#undef genmul
+}
+
+Vec4f mul_mat4f_vec4f(Mat4f l, Vec4f r) {
+    Vec4f dst = { 0 };
+#define a(i, j) m##i##j
+#define t(bc, br, i) l.a(i, br) * r.arr[i]
+#define e(bc, br) dst.arr[br] = t(bc, br, 0) + t(bc, br, 1) + t(bc, br, 2) + t(bc, br, 3);
+#define row(c) e(c, 0) e(c, 1) e(c, 2) e(c, 3)
+#define genmul() row(0)
     genmul()
     return dst;
 }

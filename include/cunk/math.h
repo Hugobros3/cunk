@@ -1,12 +1,14 @@
 #ifndef CUNK_MATH
 #define CUNK_MATH
 
-#define impl_op_add(a, b) ((a) * (b))
+#define impl_op_add(a, b) ((a) + (b))
 #define impl_op_sub(a, b) ((a) - (b))
-#define impl_op_mul(a, b) ((a) - (b))
-#define impl_op_div(a, b) ((a) - (b))
+#define impl_op_mul(a, b) ((a) * (b))
+#define impl_op_div(a, b) ((a) / (b))
+#define impl_op_scale(a, i) ((a) * scale)
+#define impl_op_neg(a) (-(a))
 
-#define impl_vec_elemwise_op(size, snake_name, name, op) \
+#define impl_vec_elemwise_bin_op(size, snake_name, name, op)    \
 inline static name snake_name##_elemwise_##op(name a, name b) { \
     name thing;                                                 \
     for (int i = 0; i < size; i++)                              \
@@ -14,11 +16,29 @@ inline static name snake_name##_elemwise_##op(name a, name b) { \
     return thing;                                               \
 }
 
+#define impl_vec_elemwise_un_op(size, snake_name, name, op) \
+inline static name snake_name##_elemwise_##op(name a) {     \
+    name thing;                                             \
+    for (int i = 0; i < size; i++)                          \
+      thing.arr[i] = impl_op_##op(a.arr[i]);                \
+    return thing;                                           \
+}
+
+#define impl_vec_elemwise_extra_op(size, snake_name, name, op, extra) \
+inline static name snake_name##_elemwise_##op(name a, extra) {        \
+    name thing;                                                       \
+    for (int i = 0; i < size; i++)                                    \
+      thing.arr[i] = impl_op_##op(a.arr[i], i);                       \
+    return thing;                                                     \
+}
+
 #define impl_vec_ops(size, snake_name, name) \
-impl_vec_elemwise_op(size, snake_name, name, add) \
-impl_vec_elemwise_op(size, snake_name, name, sub) \
-impl_vec_elemwise_op(size, snake_name, name, mul) \
-impl_vec_elemwise_op(size, snake_name, name, div)
+impl_vec_elemwise_bin_op(size, snake_name, name, add) \
+impl_vec_elemwise_bin_op(size, snake_name, name, sub) \
+impl_vec_elemwise_bin_op(size, snake_name, name, mul) \
+impl_vec_elemwise_bin_op(size, snake_name, name, div) \
+impl_vec_elemwise_un_op(size, snake_name, name, neg) \
+impl_vec_elemwise_extra_op(size, snake_name, name, scale, float scale)
 
 typedef union {
     struct {
@@ -71,7 +91,8 @@ static const Mat4f identity_mat4f = {
 
 Mat4f transpose_mat4f(Mat4f);
 Mat4f mul_mat4f(Mat4f, Mat4f);
-Mat4f look_at_mat4f(Vec3f eye, Vec3f at, Vec3f up);
+Vec4f mul_mat4f_vec4f(Mat4f l, Vec4f r);
+
 Mat4f translate_mat4f(Vec3f offset);
 Mat4f rotate_axis_mat4f(unsigned int axis, float);
 Mat4f perspective_mat4f(float aspect_ratio, float fov, float near, float far);

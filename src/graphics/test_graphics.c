@@ -2,6 +2,7 @@
 #include "cunk/math.h"
 
 #include "../common/common_private.h"
+#include "../graphics/graphics_private.h"
 
 #include "glad/glad.h"
 
@@ -121,10 +122,7 @@ static void init_cube() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData), geometryData, GL_STATIC_DRAW);
 }
 
-static struct {
-    GLFWwindow* handle;
-    int width, height;
-} window;
+static Window window;
 
 struct {
     bool wireframe;
@@ -142,6 +140,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
+static Camera camera = {
+    .position = { .x = 0, .y = 0, .z = 0 },
+    .rotation = {
+        .yaw = 0, .pitch = 0
+    },
+    .fov = 90,
+};
+static CameraFreelookState camera_state;
+
 static float angle = 0.f;
 
 static void draw_triangle() {
@@ -155,13 +162,15 @@ static void draw_triangle() {
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-    angle = angle + 0.01f;
+    // angle = angle + 0.01f;
 
     Mat4f matrix = identity_mat4f;
     matrix = mul_mat4f(rotate_axis_mat4f(1, angle), matrix);
     matrix = mul_mat4f(translate_mat4f((Vec3f) { 0.f, 0.f, -3.f }), matrix);
-    float ratio = ((float) window.width) / ((float) window.height);
-    matrix = mul_mat4f(perspective_mat4f(ratio, 90.0f, 0.1f, 100.f), matrix);
+
+    matrix = mul_mat4f(camera_get_view_mat4(&camera, &window), matrix);
+    // float ratio = ((float) window.width) / ((float) window.height);
+    // matrix = mul_mat4f(perspective_mat4f(ratio, 90.0f, 0.1f, 100.f), matrix);
 
     glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_FALSE, matrix.arr);
 
@@ -220,6 +229,8 @@ int main() {
     glfwSwapInterval(1);
 
     while (!glfwWindowShouldClose(window.handle)) {
+        camera_move_freelook(&camera, &window, &camera_state);
+
         glfwGetFramebufferSize(window.handle, &window.width, &window.height);
         glViewport(0, 0, window.width, window.height);
 

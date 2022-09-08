@@ -3,7 +3,7 @@ link_libraries(glfw)
 
 link_libraries(glad)
 
-add_library(graphics STATIC graphics.c)
+add_library(graphics STATIC graphics.c camera.c window.c)
 
 add_executable(test_graphics test_graphics.c)
 target_link_libraries(test_graphics graphics incbin)
