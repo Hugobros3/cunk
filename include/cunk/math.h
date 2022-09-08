@@ -90,6 +90,7 @@ static const Mat4f identity_mat4f = {
 };
 
 Mat4f transpose_mat4f(Mat4f);
+Mat4f invert_mat4(Mat4f);
 Mat4f mul_mat4f(Mat4f, Mat4f);
 Vec4f mul_mat4f_vec4f(Mat4f l, Vec4f r);
 

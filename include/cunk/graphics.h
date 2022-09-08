@@ -17,12 +17,13 @@ typedef struct {
 } Camera;
 
 Vec3f camera_get_forward_vec(const Camera*);
-Vec3f camera_get_right_vec(const Camera*);
+Vec3f camera_get_left_vec(const Camera*);
 Mat4f camera_get_view_mat4(const Camera*, const Window*);
 
 typedef struct {
-    unsigned mouse_was_held: 1;
+    float fly_speed, mouse_sensitivity;
     double last_mouse_x, last_mouse_y;
+    unsigned mouse_was_held: 1;
 } CameraFreelookState;
 
 void camera_move_freelook(Camera*, Window*, CameraFreelookState*);

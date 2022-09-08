@@ -147,7 +147,10 @@ static Camera camera = {
     },
     .fov = 90,
 };
-static CameraFreelookState camera_state;
+static CameraFreelookState camera_state = {
+    .fly_speed = 0.25f,
+    .mouse_sensitivity = 2.0f
+};
 
 static float angle = 0.f;
 
@@ -178,9 +181,9 @@ static void draw_triangle() {
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &num_attributes);
 
     for (int i = 0; i < num_attributes; i++) {
-        size_t len;
+        GLsizei len;
         char name[32];
-        int size;
+        GLsizei size;
         GLenum type;
         glGetActiveAttrib(program, i, 32, &len, &size, &type, (char*) &name);
         int loc = glGetAttribLocation(program, name);
