@@ -1,44 +1,39 @@
 #ifndef CUNK_MATH
 #define CUNK_MATH
 
+#define MATH_FN_QUALIFIERS static inline __attribute__ ((const))
+
+#define impl_op_ctor f
+#define impl_op_scale ((a.arr[i]) * scale)
+
+#define impl_op_binop_helper(op) impl_op_##op(a.arr[i], b.arr[i])
 #define impl_op_add(a, b) ((a) + (b))
 #define impl_op_sub(a, b) ((a) - (b))
 #define impl_op_mul(a, b) ((a) * (b))
 #define impl_op_div(a, b) ((a) / (b))
-#define impl_op_scale(a, i) ((a) * scale)
+
+#define impl_op_unop_helper(op) impl_op_##op(a.arr[i])
 #define impl_op_neg(a) (-(a))
 
-#define impl_vec_elemwise_bin_op(size, snake_name, name, op)    \
-inline static name snake_name##_elemwise_##op(name a, name b) { \
-    name thing;                                                 \
-    for (int i = 0; i < size; i++)                              \
-      thing.arr[i] = impl_op_##op(a.arr[i], b.arr[i]);          \
-    return thing;                                               \
+#define impl_vec_op(size, snake_name, type_name, op_name, op, ...) \
+MATH_FN_QUALIFIERS type_name snake_name##_##op_name(__VA_ARGS__) { \
+    type_name thing;                                               \
+    for (int i = 0; i < size; i++)                                 \
+      thing.arr[i] = impl_op_##op;                                 \
+    return thing;                                                  \
 }
 
-#define impl_vec_elemwise_un_op(size, snake_name, name, op) \
-inline static name snake_name##_elemwise_##op(name a) {     \
-    name thing;                                             \
-    for (int i = 0; i < size; i++)                          \
-      thing.arr[i] = impl_op_##op(a.arr[i]);                \
-    return thing;                                           \
-}
+#define impl_vec_bin_op(size, sn, n, opn, op) impl_vec_op(size, sn, n, opn, binop_helper(op), n a, n b)
+#define impl_vec_un_op(size, sn, n, opn, op) impl_vec_op(size, sn, n, opn, unop_helper(op), n a)
 
-#define impl_vec_elemwise_extra_op(size, snake_name, name, op, extra) \
-inline static name snake_name##_elemwise_##op(name a, extra) {        \
-    name thing;                                                       \
-    for (int i = 0; i < size; i++)                                    \
-      thing.arr[i] = impl_op_##op(a.arr[i], i);                       \
-    return thing;                                                     \
-}
-
-#define impl_vec_ops(size, snake_name, name) \
-impl_vec_elemwise_bin_op(size, snake_name, name, add) \
-impl_vec_elemwise_bin_op(size, snake_name, name, sub) \
-impl_vec_elemwise_bin_op(size, snake_name, name, mul) \
-impl_vec_elemwise_bin_op(size, snake_name, name, div) \
-impl_vec_elemwise_un_op(size, snake_name, name, neg) \
-impl_vec_elemwise_extra_op(size, snake_name, name, scale, float scale)
+#define impl_vec_ops(size, snake_name, name, scalar_name) \
+impl_vec_bin_op(size, snake_name, name, add, add) \
+impl_vec_bin_op(size, snake_name, name, sub, sub) \
+impl_vec_bin_op(size, snake_name, name, mul, mul) \
+impl_vec_bin_op(size, snake_name, name, div, div) \
+impl_vec_un_op(size, snake_name, name, neg, neg) \
+impl_vec_op(size, snake_name, name, scale, scale, name a, scalar_name scale) \
+impl_vec_op(size, snake_name, name, ctor, ctor, scalar_name f)
 
 typedef union {
     struct {
@@ -47,7 +42,7 @@ typedef union {
     float arr[2];
 } Vec2f;
 
-impl_vec_ops(2, vec2f, Vec2f)
+impl_vec_ops(2, vec2f, Vec2f, float)
 
 typedef union {
     struct {
@@ -57,7 +52,7 @@ typedef union {
     Vec2f xy;
 } Vec3f;
 
-impl_vec_ops(3, vec3f, Vec3f)
+impl_vec_ops(3, vec3f, Vec3f, float)
 
 typedef union {
     struct {
@@ -68,7 +63,7 @@ typedef union {
     Vec3f xyz;
 } Vec4f;
 
-impl_vec_ops(4, vec4f, Vec4f)
+impl_vec_ops(4, vec4f, Vec4f, float)
 
 typedef union {
     struct {

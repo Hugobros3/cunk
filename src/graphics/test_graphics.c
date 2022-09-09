@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
 
 INCTXT(test_fs, "test.fs");
 INCTXT(test_vs, "test.vs");
@@ -115,11 +116,36 @@ float geometryData[] = {
     -1.0, -1.0,  1.0,   0.0, 1.0,
 };
 
+int num_cubes = 6400;
+
+static float frand() {
+    int r = rand();
+    double rd = (double) r;
+    rd /= (double) RAND_MAX;
+    return ((float) rd);
+}
+
 static void init_cube() {
     glGenBuffers(1, &vbo);
 
+    void* geom_tmp = malloc(sizeof(geometryData) * num_cubes);
+    float* fp_tmp = geom_tmp;
+    for (size_t i = 0; i < num_cubes; i++) {
+        Vec3f offset = { frand(), frand(), frand() };
+        offset = vec3f_sub(vec3f_scale(offset, 128.0f), vec3f_ctor(64.0f));
+        for (int j = 0; j < 36; j++) {
+            *(fp_tmp++) = geometryData[j * 5 + 0] + offset.x;
+            *(fp_tmp++) = geometryData[j * 5 + 1] + offset.y;
+            *(fp_tmp++) = geometryData[j * 5 + 2] + offset.z;
+            *(fp_tmp++) = geometryData[j * 5 + 3];
+            *(fp_tmp++) = geometryData[j * 5 + 4];
+        }
+        // memcpy(geom_tmp + sizeof(geometryData) * i, )
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData), geometryData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData) * num_cubes, geom_tmp, GL_STATIC_DRAW);
+    free(geom_tmp);
 }
 
 static Window window;
@@ -205,7 +231,7 @@ static void draw_triangle() {
     glEnableVertexAttribArray(glGetAttribLocation(program, "texCoordIn"));
     glVertexAttribPointer(glGetAttribLocation(program, "texCoordIn"), 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (sizeof(float) * 3));
 
-    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 36), return);
+    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 36 * num_cubes), return);
 }
 
 int main() {

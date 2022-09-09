@@ -18,7 +18,7 @@ Mat4f camera_get_view_mat4(const Camera* camera, const Window* window) {
     matrix = mul_mat4f(translate_mat4f(camera->position), matrix);
     matrix = mul_mat4f(camera_rotation_matrix(camera), matrix);
     float ratio = ((float) window->width) / ((float) window->height);
-    matrix = mul_mat4f(perspective_mat4f(ratio, camera->fov, 0.1f, 100.f), matrix);
+    matrix = mul_mat4f(perspective_mat4f(ratio, camera->fov, 0.1f, 1000.f), matrix);
     return matrix;
 }
 
@@ -27,14 +27,14 @@ Vec3f camera_get_forward_vec(const Camera* cam) {
     // we invert the rotation matrix and use the front vector from the camera space to get the one in world space
     Mat4f matrix = invert_mat4(camera_rotation_matrix(cam));
     Vec4f result = mul_mat4f_vec4f(matrix, initial_forward);
-    return vec3f_elemwise_scale(result.xyz, 1.0f / result.w);
+    return vec3f_scale(result.xyz, 1.0f / result.w);
 }
 
 Vec3f camera_get_left_vec(const Camera* cam) {
     Vec4f initial_forward = { .x = 1, .w = 1 };
     Mat4f matrix = invert_mat4(camera_rotation_matrix(cam));
     Vec4f result = mul_mat4f_vec4f(matrix, initial_forward);
-    return vec3f_elemwise_scale(result.xyz, 1.0f / result.w);
+    return vec3f_scale(result.xyz, 1.0f / result.w);
 }
 
 void camera_move_freelook(Camera* cam, Window* w, CameraFreelookState* state) {
@@ -58,12 +58,12 @@ void camera_move_freelook(Camera* cam, Window* w, CameraFreelookState* state) {
     state->mouse_was_held = mouse_held;
 
     if (glfwGetKey(w->handle, GLFW_KEY_W) == GLFW_PRESS)
-        cam->position = vec3f_elemwise_add(cam->position, vec3f_elemwise_scale(camera_get_forward_vec(cam), state->fly_speed));
+        cam->position = vec3f_add(cam->position, vec3f_scale(camera_get_forward_vec(cam), state->fly_speed));
     else if (glfwGetKey(w->handle, GLFW_KEY_S) == GLFW_PRESS)
-        cam->position = vec3f_elemwise_sub(cam->position, vec3f_elemwise_scale(camera_get_forward_vec(cam), state->fly_speed));
+        cam->position = vec3f_sub(cam->position, vec3f_scale(camera_get_forward_vec(cam), state->fly_speed));
 
     if (glfwGetKey(w->handle, GLFW_KEY_D) == GLFW_PRESS)
-        cam->position = vec3f_elemwise_sub(cam->position, vec3f_elemwise_scale(camera_get_left_vec(cam), state->fly_speed));
+        cam->position = vec3f_sub(cam->position, vec3f_scale(camera_get_left_vec(cam), state->fly_speed));
     else if (glfwGetKey(w->handle, GLFW_KEY_A) == GLFW_PRESS)
-        cam->position = vec3f_elemwise_add(cam->position, vec3f_elemwise_scale(camera_get_left_vec(cam), state->fly_speed));
+        cam->position = vec3f_add(cam->position, vec3f_scale(camera_get_left_vec(cam), state->fly_speed));
 }
