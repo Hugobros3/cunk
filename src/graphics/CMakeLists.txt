@@ -1,4 +1,4 @@
-find_package(GLFW3 REQUIRED)
+find_package(glfw3 REQUIRED)
 link_libraries(glfw)
 
 link_libraries(glad)
