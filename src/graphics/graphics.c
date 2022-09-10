@@ -60,9 +60,9 @@ void gfx_cmd_use_shader(GfxCtx* ctx, GfxShader* shader) {
 
 void gfx_cmd_set_draw_fill_state(GfxCtx* ctx, bool filled) {
     if (filled)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // TODO:
     //glEnable(GL_CULL_FACE);
@@ -75,12 +75,14 @@ void gfx_cmd_set_shader_extern(GfxCtx* ctx, const char* name, void* data) {
     for (int i = 0; i < num_active_uniforms; i++) {
         char uname[32];
         int size;
+        int len;
         GLenum type;
-        glGetActiveUniform(ctx->shader->program, i, 32, NULL, &size, &type, &uname);
+        GL_CHECK(glGetActiveUniform(ctx->shader->program, i, 32, &len, &size, &type, uname), return);
+        int loc = glad_glGetUniformLocation(ctx->shader->program, name);
         if (strcmp(name, uname) == 0) {
             switch(type) {
-                case GL_INT: glUniform1i(i, *((int*) data)); break;
-                case GL_FLOAT_MAT4: glUniformMatrix4fv(i, 1, GL_FALSE, data); break;
+                case GL_INT: GL_CHECK(glUniform1i(loc, *((int*) data)), return); break;
+                case GL_FLOAT_MAT4: GL_CHECK(glUniformMatrix4fv(loc, 1, GL_FALSE, data), return); break;
                 default: abort(); // todo
             }
             return;
