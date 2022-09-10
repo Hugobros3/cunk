@@ -71,7 +71,13 @@ float geometryData[] = {
     -1.0, -1.0,  1.0,   0.0, 1.0,
 };
 
-int num_cubes = 6400;
+struct {
+    bool wireframe;
+    int render_mode;
+    int num_cubes;
+} config = {
+    .num_cubes = 64
+};
 
 static float frand() {
     int r = rand();
@@ -80,10 +86,17 @@ static float frand() {
     return ((float) rd);
 }
 
-static void init_cube() {
-    void* geom_tmp = malloc(sizeof(geometryData) * num_cubes);
+static void init_cubes() {
+    if (buffer)
+        destroy_buffer(buffer);
+    
+    fprintf(stderr, "%d cubes, totalling %d KiB of data\n", config.num_cubes, config.num_cubes * sizeof(geometryData) / 1024);
+    fflush(stderr);
+    
+    size_t buffer_size = sizeof(geometryData) * config.num_cubes;
+    void* geom_tmp = malloc(buffer_size);
     float* fp_tmp = geom_tmp;
-    for (size_t i = 0; i < num_cubes; i++) {
+    for (size_t i = 0; i < config.num_cubes; i++) {
         Vec3f offset = { frand(), frand(), frand() };
         offset = vec3f_sub(vec3f_scale(offset, 128.0f), vec3f_ctor(64.0f));
         for (int j = 0; j < 36; j++) {
@@ -93,18 +106,12 @@ static void init_cube() {
             *(fp_tmp++) = geometryData[j * 5 + 3];
             *(fp_tmp++) = geometryData[j * 5 + 4];
         }
-        // memcpy(geom_tmp + sizeof(geometryData) * i, )
     }
 
-    buffer = create_buffer(ctx, sizeof(geometryData) * num_cubes);
-    copy_to_buffer(buffer, geom_tmp, sizeof(geometryData) * num_cubes);
+    buffer = create_buffer(ctx, buffer_size);
+    copy_to_buffer(buffer, geom_tmp, buffer_size);
     free(geom_tmp);
 }
-
-struct {
-    bool wireframe;
-    int render_mode;
-} config;
 
 static void key_callback(GLFWwindow* handle, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS)
@@ -117,6 +124,15 @@ static void key_callback(GLFWwindow* handle, int key, int scancode, int action, 
         case GLFW_KEY_2:
             config.render_mode ^= 1;
             break;
+        case GLFW_KEY_3:
+            config.num_cubes = config.num_cubes > 1 ? config.num_cubes / 2 : 1;
+            init_cubes();
+            break;
+        case GLFW_KEY_4:
+            config.num_cubes = config.num_cubes * 2;
+            init_cubes();
+            break;
+        
         default: break;
     }
 }
@@ -133,7 +149,7 @@ static CameraFreelookState camera_state = {
     .mouse_sensitivity = 2.0f
 };
 
-static void draw_triangle() {
+static void draw_cubes() {
     gfx_cmd_resize_viewport(ctx, window);
     gfx_cmd_clear(ctx);
     gfx_cmd_set_draw_fill_state(ctx, !config.wireframe);
@@ -148,7 +164,7 @@ static void draw_triangle() {
     gfx_cmd_set_vertex_input(ctx, "vertexIn", buffer, 3, sizeof(float) * 5, 0);
     gfx_cmd_set_vertex_input(ctx, "texCoordIn", buffer, 2, sizeof(float) * 5, sizeof(float) * 3);
 
-    gfx_cmd_draw_arrays(ctx, 0, 36 * num_cubes);
+    gfx_cmd_draw_arrays(ctx, 0, 36 * config.num_cubes);
 }
 
 int main() {
@@ -156,7 +172,7 @@ int main() {
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
     shader = create_shader(ctx, test_vs_data, test_fs_data);
-    init_cube();
+    init_cubes();
 
     fflush(stdout);
     fflush(stderr);
@@ -166,7 +182,7 @@ int main() {
     while (!glfwWindowShouldClose(get_glfw_handle(window))) {
         camera_move_freelook(&camera, window, &camera_state);
 
-        draw_triangle();
+        draw_cubes();
 
         glfwSwapBuffers(get_glfw_handle(window));
         glfwPollEvents();

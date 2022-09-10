@@ -46,6 +46,11 @@ void copy_to_buffer(GfxBuffer* buffer, void* d, size_t s) {
     glBufferData(GL_ARRAY_BUFFER, s, d, GL_STATIC_DRAW);
 }
 
+void destroy_buffer(GfxBuffer* buffer) {
+    glDeleteBuffers(1, &buffer->vbo);
+    free(buffer);
+}
+
 void gfx_cmd_resize_viewport(GfxCtx* ctx, Window* window) {
     glfwGetFramebufferSize(get_glfw_handle(window), &window->width, &window->height);
     glViewport(0, 0, window->width, window->height);

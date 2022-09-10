@@ -1,7 +1,7 @@
 find_package(glfw3 REQUIRED)
 link_libraries(glfw)
 
-add_library(graphics SHARED graphics.c shader.c camera.c window.c)
+add_library(graphics STATIC graphics.c shader.c camera.c window.c)
 target_link_libraries(graphics PRIVATE glad)
 
 add_executable(test_graphics test_graphics.c)
