@@ -3,10 +3,26 @@
 
 #include "cunk/math.h"
 
+#include <stddef.h>
 #include <stdbool.h>
 
-typedef struct DrawCtx_ DrawCtx;
 typedef struct Window_ Window;
+typedef struct GfxCtx_ GfxCtx;
+typedef struct GfxShader_ GfxShader;
+typedef struct GfxBuffer_ GfxBuffer;
+
+Window* create_window(const char* title, int width, int height, GfxCtx**);
+GfxShader* create_shader(GfxCtx*, const char* vs, const char* fs);
+GfxBuffer* create_buffer(GfxCtx*, size_t);
+void copy_to_buffer(GfxBuffer*, void*, size_t);
+
+void gfx_cmd_resize_viewport(GfxCtx*, Window*);
+void gfx_cmd_clear(GfxCtx*);
+void gfx_cmd_use_shader(GfxCtx*, GfxShader*);
+void gfx_cmd_set_draw_fill_state(GfxCtx*, bool);
+void gfx_cmd_set_shader_extern(GfxCtx*, const char*, void*);
+void gfx_cmd_set_vertex_input(GfxCtx*, const char*, GfxBuffer*, int components, size_t stride, size_t offset);
+void gfx_cmd_draw_arrays(GfxCtx*, size_t, size_t);
 
 typedef struct {
     Vec3f position;
