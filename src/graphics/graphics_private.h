@@ -20,6 +20,9 @@ struct Window_ {
 struct GfxCtx_ {
     Window* window;
     GfxShader* shader;
+    struct {
+        bool broken_3dlabs_driver;
+    } hacks;
 };
 
 struct GfxShader_ {

@@ -23,6 +23,9 @@ Window* create_window(const char* title, int width, int height, GfxCtx** ctx) {
         printf("Running on OpenGL\n");
         printf("Version: %s\n", version);
         printf("Vendor: %s\n", vendor);
+
+        if (strcmp(vendor, "3Dlabs") == 0)
+            (*ctx)->hacks.broken_3dlabs_driver = true;
     }
     
     return win;
@@ -95,12 +98,13 @@ void gfx_cmd_set_vertex_input(GfxCtx* ctx, const char* name, GfxBuffer* buf, int
     GLint location = glGetAttribLocation(ctx->shader->program, name);
     assert(location >= 0);
 
-    // 3dlabs's driver seems unhappy drawing without a vertex array bound
-    // glEnableClientState(GL_VERTEX_ARRAY);
-    // float dummy[] = { 0 };
-    // glVertexPointer(3, GL_FLOAT, sizeof(float) * 1, dummy );
-
     glBindBuffer(GL_ARRAY_BUFFER, buf->vbo);
+
+    if (ctx->hacks.broken_3dlabs_driver) {
+        // 3dlabs's driver seems unhappy drawing without a vertex array bound
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, sizeof(float) * 1, 0);
+    }
 
     glEnableVertexAttribArray(location);
     GL_CHECK(glVertexAttribPointer(location, components, GL_FLOAT, GL_FALSE, stride, offset), return);
