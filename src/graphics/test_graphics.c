@@ -152,6 +152,7 @@ static Window window;
 
 struct {
     bool wireframe;
+    int render_mode;
 } config;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -161,6 +162,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     switch (key) {
         case GLFW_KEY_1:
             config.wireframe ^= true;
+            break;
+        case GLFW_KEY_2:
+            config.render_mode ^= 1;
             break;
         default: break;
     }
@@ -227,6 +231,8 @@ static void draw_triangle() {
 
     glEnableVertexAttribArray(glGetAttribLocation(program, "vertexIn"));
     glVertexAttribPointer(glGetAttribLocation(program, "vertexIn"), 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, NULL);
+
+    glUniform1i(glGetUniformLocation(program, "render_mode"), config.render_mode);
 
     glEnableVertexAttribArray(glGetAttribLocation(program, "texCoordIn"));
     glVertexAttribPointer(glGetAttribLocation(program, "texCoordIn"), 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*) (sizeof(float) * 3));
