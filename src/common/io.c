@@ -1,7 +1,9 @@
+#include "common_private.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
-const char* read_file(char* filename) {
+bool read_file(const char* filename, size_t* out_size, char** out_buffer) {
 	char* buffer = NULL;
 	long length;
 	FILE* f = fopen(filename, "rb");
@@ -11,12 +13,13 @@ const char* read_file(char* filename) {
 		length = ftell(f);
 		fseek(f, 0, SEEK_SET);
 		
-		buffer = malloc(length);
+		buffer = *out_buffer = malloc(length);
 		if (buffer) {
 			fread(buffer, 1, length, f);
+            *out_size = (size_t) length;
+            fclose(f);
+            return true;
 		}
-		fclose(f);
 	}
-	
-	return buffer;
+    return false;
 }
