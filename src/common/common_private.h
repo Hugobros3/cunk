@@ -6,4 +6,9 @@
 
 bool read_file(const char* filename, size_t* out_size, char** out_buffer);
 
+typedef struct Growy_ Growy;
+bool cunk_inflate(size_t src_size, const char* input_data, Growy* output);
+
+bool string_ends_with(const char* string, const char* suffix);
+
 #endif

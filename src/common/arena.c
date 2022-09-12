@@ -36,6 +36,13 @@ void cunk_growy_destroy(Growy* g) {
     free(g);
 }
 
+char* cunk_growy_deconstruct(Growy* g) {
+    char* buf = g->buffer;
+    free(g);
+    return buf;
+}
+
+size_t cunk_growy_size(const Growy* g) { return g->used; }
 char* cunk_growy_data(const Growy* g) { return g->buffer; }
 
 typedef struct {
@@ -47,6 +54,7 @@ struct Arena_ {
     Growy* pages;
     int pages_count;
     int page_size;
+    size_t overall_size;
 };
 
 Arena* cunk_new_arena() {
@@ -57,6 +65,10 @@ Arena* cunk_new_arena() {
         .pages = cunk_new_growy(),
     };
     return a;
+}
+
+size_t cunk_arena_size(const Arena* a) {
+    return a->overall_size;
 }
 
 char* cunk_arena_alloc_bytes(Arena* a, size_t size) {
@@ -79,6 +91,7 @@ char* cunk_arena_alloc_bytes(Arena* a, size_t size) {
     char* ptr = last_page->alloc + last_page->used;
     last_page->used += size;
     assert(last_page->used <= last_page->size);
+    a->overall_size += size;
     return ptr;
 }
 

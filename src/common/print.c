@@ -65,3 +65,19 @@ void cunk_print(Printer* p, const char* f, ...) {
 void cunk_flush(Printer* p) {
     fflush(p->f);
 }
+
+void cunk_print_size_suffix(Printer* p, size_t s, int extra) {
+    const char* suffixes[] = { "B", "KiB", "MiB", "GiB", "PiB" };
+    int max_suffix = sizeof(suffixes) / sizeof(const char*);
+
+    size_t ogsize = s;
+    int i = 0;
+    while (s >= (1024 << (extra))) {
+        s /= 1024;
+        i++;
+        if (i + 1 == max_suffix)
+            break;
+    }
+
+    cunk_print(p, "%llu%s", s, suffixes[i]);
+}
