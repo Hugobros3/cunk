@@ -2,6 +2,8 @@
 #include "cunk/memory.h"
 #include "cunk/log.h"
 
+#include "../common/common_private.h"
+
 #include <assert.h>
 #include <string.h>
 
@@ -13,13 +15,6 @@ static_assert(sizeof(double) == sizeof(int64_t), "what kind of platform is this"
 static const char* validate_in_bounds(const char* buf, const char* bound, size_t off) {
     assert(buf + off <= bound);
     return buf + off;
-}
-
-static int64_t swap_endianness(int bytes, int64_t i) {
-    int64_t acc = 0;
-    for (int byte = 0; byte < bytes; byte++)
-        acc |= ((i >> byte * 8) & 0xFF) << (bytes - 1 - byte) * 8;
-    return acc;
 }
 
 #define read(T) (T) swap_endianness(sizeof(T), *(T*) ((*buffer = validate_in_bounds(*buffer, buffer_end, sizeof(T))) - sizeof(T)) )

@@ -18,3 +18,10 @@ bool string_ends_with(const char* string, const char* suffix) {
     }
     return true;
 }
+
+int64_t swap_endianness(int bytes, int64_t i) {
+    int64_t acc = 0;
+    for (int byte = 0; byte < bytes; byte++)
+        acc |= ((i >> byte * 8) & 0xFF) << (bytes - 1 - byte) * 8;
+    return acc;
+}

@@ -8,16 +8,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-static int64_t swap_endianness(int bytes, int64_t i) {
-    int64_t acc = 0;
-    for (int byte = 0; byte < bytes; byte++)
-        acc |= ((i >> byte * 8) & 0xFF) << (bytes - 1 - byte) * 8;
-    return acc;
-}
-
 int main(int argc, char** argv) {
-    assert(swap_endianness(8, 0x0011223344556677) == 0x7766554433221100 && "");
-
     Printer* p = cunk_open_file_as_printer(stdout);
 
     char* buf;
