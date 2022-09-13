@@ -95,6 +95,13 @@ char* cunk_arena_alloc_bytes(Arena* a, size_t size) {
     return ptr;
 }
 
+char* cunk_arena_string(Arena* a, const char* str) {
+    size_t len = strlen(str);
+    char* s = cunk_arena_alloc_bytes(a, len + 1);
+    memcpy(s, str, len + 1);
+    return s;
+}
+
 void cunk_arena_destroy(Arena* a) {
     for (int i = 0; i < a->pages_count; i++)
         free(((Page*) cunk_growy_data(a->pages))[i].alloc);

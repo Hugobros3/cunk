@@ -24,6 +24,7 @@ Arena* cunk_new_arena();
 char* cunk_arena_alloc_bytes(Arena*, size_t);
 size_t cunk_arena_size(const Arena*);
 #define cunk_arena_alloc(T, a) ((T*) cunk_arena_alloc_bytes(a, sizeof(T)))
+char* cunk_arena_string(Arena*, const char*);
 void cunk_arena_destroy(Arena*);
 
 #endif
