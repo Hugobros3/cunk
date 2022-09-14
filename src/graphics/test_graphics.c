@@ -74,7 +74,7 @@ float geometryData[] = {
 
 struct {
     bool wireframe, face_culling, depth_testing;
-    bool finish;
+    bool finish, vsync;
     int render_mode;
     int num_cubes;
 } config = {
@@ -136,6 +136,9 @@ static void key_callback(GLFWwindow* handle, int key, int scancode, int action, 
         case GLFW_KEY_5:
             config.finish ^= true;
             break;
+        case GLFW_KEY_6:
+            config.vsync ^= true;
+            break;
         case GLFW_KEY_MINUS:
             config.num_cubes = config.num_cubes > 1 ? config.num_cubes / 2 : 1;
             init_cubes();
@@ -184,6 +187,10 @@ static void draw_cubes() {
     gfx_cmd_draw_arrays(ctx, 0, 36 * config.num_cubes);
 }
 
+#define SMOOTH_FPS_ACC_FRAMES 32
+static double last_frames_times[SMOOTH_FPS_ACC_FRAMES] = { 0 };
+static int frame = 0;
+
 int main() {
     window = create_window("Hello", 640, 480, &ctx);
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
@@ -194,7 +201,7 @@ int main() {
     fflush(stdout);
     fflush(stderr);
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(config.vsync ? 1 : 0);
 
     while (!glfwWindowShouldClose(get_glfw_handle(window))) {
         double then = glfwGetTime();
@@ -207,13 +214,32 @@ int main() {
             gfx_wait_for_idle();
 
         double now = glfwGetTime();
-        double delta = now - then;
-        double fps = 1.0 / delta;
+        double frametime = 0.0;
+        int available_frames = frame > SMOOTH_FPS_ACC_FRAMES ? SMOOTH_FPS_ACC_FRAMES : frame;
+        int j = frame % SMOOTH_FPS_ACC_FRAMES;
+        for (int i = 0; i < available_frames; i++) {
+            double frame_start = last_frames_times[j];
+            j = (j + 1) % SMOOTH_FPS_ACC_FRAMES;
+            double frame_end;
+            if (i + 1 == available_frames)
+                frame_end = now;
+            else
+                frame_end = last_frames_times[j];
+            double delta = frame_end - frame_start;
+            frametime += delta;
+        }
+
+        frametime /= (double) available_frames;
+
+        double fps = 1.0 / frametime;
         int ifps = (int) fps;
 
         const char* t = format_string("Cubes: %d, FPS: %d", config.num_cubes, ifps);
         glfwSetWindowTitle(get_glfw_handle(window), t);
         free(t);
+
+        last_frames_times[frame % SMOOTH_FPS_ACC_FRAMES] = now;
+        frame++;
 
         glfwPollEvents();
     }
