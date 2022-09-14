@@ -30,6 +30,8 @@ void gfx_cmd_set_shader_extern(GfxCtx*, const char*, void*);
 void gfx_cmd_set_vertex_input(GfxCtx*, const char*, GfxBuffer*, int components, size_t stride, size_t offset);
 void gfx_cmd_draw_arrays(GfxCtx*, size_t, size_t);
 
+void gfx_wait_for_idle();
+
 typedef struct {
     Vec3f position;
     struct {

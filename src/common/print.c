@@ -96,7 +96,7 @@ Printer* cunk_print(Printer* p, const char* f, ...) {
 
         va_list l;
         va_start(l, f);
-        written = vsprintf_s(tmp, bufsize, f, l);
+        written = vsnprintf(tmp, bufsize, f, l);
         va_end(l);
 
         if (written <= bufsize)

@@ -115,3 +115,6 @@ void gfx_cmd_draw_arrays(GfxCtx* ctx, size_t start, size_t num) {
     GL_CHECK(glDrawArrays(GL_TRIANGLES, (GLint) start, (GLint) num), return);
 }
 
+void gfx_wait_for_idle() {
+    glFinish();
+}

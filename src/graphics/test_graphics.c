@@ -74,6 +74,7 @@ float geometryData[] = {
 
 struct {
     bool wireframe, face_culling, depth_testing;
+    bool finish;
     int render_mode;
     int num_cubes;
 } config = {
@@ -131,6 +132,9 @@ static void key_callback(GLFWwindow* handle, int key, int scancode, int action, 
             break;
         case GLFW_KEY_4:
             config.depth_testing ^= true;
+            break;
+        case GLFW_KEY_5:
+            config.finish ^= true;
             break;
         case GLFW_KEY_MINUS:
             config.num_cubes = config.num_cubes > 1 ? config.num_cubes / 2 : 1;
@@ -199,6 +203,9 @@ int main() {
         draw_cubes();
 
         glfwSwapBuffers(get_glfw_handle(window));
+        if (config.finish)
+            gfx_wait_for_idle();
+
         double now = glfwGetTime();
         double delta = now - then;
         double fps = 1.0 / delta;
