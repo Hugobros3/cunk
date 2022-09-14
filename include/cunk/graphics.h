@@ -20,7 +20,12 @@ void destroy_buffer(GfxBuffer*);
 void gfx_cmd_resize_viewport(GfxCtx*, Window*);
 void gfx_cmd_clear(GfxCtx*);
 void gfx_cmd_use_shader(GfxCtx*, GfxShader*);
-void gfx_cmd_set_draw_fill_state(GfxCtx*, bool);
+
+typedef struct {
+    bool wireframe, face_culling, depth_testing;
+} GfxState;
+
+void gfx_cmd_set_draw_state(GfxCtx*, GfxState);
 void gfx_cmd_set_shader_extern(GfxCtx*, const char*, void*);
 void gfx_cmd_set_vertex_input(GfxCtx*, const char*, GfxBuffer*, int components, size_t stride, size_t offset);
 void gfx_cmd_draw_arrays(GfxCtx*, size_t, size_t);

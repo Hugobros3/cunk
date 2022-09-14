@@ -66,15 +66,11 @@ void gfx_cmd_use_shader(GfxCtx* ctx, GfxShader* shader) {
     ctx->shader = shader;
 }
 
-void gfx_cmd_set_draw_fill_state(GfxCtx* ctx, bool filled) {
-    if (filled)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // TODO:
-    //glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+void gfx_cmd_set_draw_state(GfxCtx* ctx, GfxState state) {
+#define toggle_state(c, s) if (c) glEnable(s); else glDisable(s);
+    glPolygonMode(GL_FRONT_AND_BACK, state.wireframe ? GL_LINE : GL_FILL);
+    toggle_state(state.face_culling, GL_CULL_FACE);
+    toggle_state(state.depth_testing, GL_DEPTH_TEST);
 }
 
 void gfx_cmd_set_shader_extern(GfxCtx* ctx, const char* name, void* data) {
@@ -108,7 +104,7 @@ void gfx_cmd_set_vertex_input(GfxCtx* ctx, const char* name, GfxBuffer* buf, int
     if (ctx->hacks.broken_3dlabs_driver) {
         // 3dlabs's driver seems unhappy drawing without a vertex array bound
         glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(2, GL_FLOAT, sizeof(float) * 1, 0);
+        glVertexPointer(2, GL_SHORT, stride, 0);
     }
 
     glEnableVertexAttribArray(location);

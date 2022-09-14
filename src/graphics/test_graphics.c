@@ -73,11 +73,12 @@ float geometryData[] = {
 };
 
 struct {
-    bool wireframe;
+    bool wireframe, face_culling, depth_testing;
     int render_mode;
     int num_cubes;
 } config = {
-    .num_cubes = 64
+    .depth_testing = true,
+    .num_cubes = 64,
 };
 
 static float frand() {
@@ -120,16 +121,22 @@ static void key_callback(GLFWwindow* handle, int key, int scancode, int action, 
 
     switch (key) {
         case GLFW_KEY_1:
-            config.wireframe ^= true;
-            break;
-        case GLFW_KEY_2:
             config.render_mode ^= 1;
             break;
+        case GLFW_KEY_2:
+            config.wireframe ^= true;
+            break;
         case GLFW_KEY_3:
+            config.face_culling ^= true;
+            break;
+        case GLFW_KEY_4:
+            config.depth_testing ^= true;
+            break;
+        case GLFW_KEY_MINUS:
             config.num_cubes = config.num_cubes > 1 ? config.num_cubes / 2 : 1;
             init_cubes();
             break;
-        case GLFW_KEY_4:
+        case GLFW_KEY_EQUAL:
             config.num_cubes = config.num_cubes * 2;
             init_cubes();
             break;
@@ -153,7 +160,12 @@ static CameraFreelookState camera_state = {
 static void draw_cubes() {
     gfx_cmd_resize_viewport(ctx, window);
     gfx_cmd_clear(ctx);
-    gfx_cmd_set_draw_fill_state(ctx, !config.wireframe);
+    GfxState state = {
+        .wireframe = config.wireframe,
+        .face_culling = config.face_culling,
+        .depth_testing = config.depth_testing,
+    };
+    gfx_cmd_set_draw_state(ctx, state);
     gfx_cmd_use_shader(ctx, shader);
 
     Mat4f matrix = identity_mat4f;
@@ -192,7 +204,7 @@ int main() {
         double fps = 1.0 / delta;
         int ifps = (int) fps;
 
-        const char* t = format_string("FPS: %d", ifps);
+        const char* t = format_string("Cubes: %d, FPS: %d", config.num_cubes, ifps);
         glfwSetWindowTitle(get_glfw_handle(window), t);
         free(t);
 
