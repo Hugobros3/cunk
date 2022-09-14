@@ -1,5 +1,6 @@
 #include "cunk/graphics.h"
 #include "cunk/math.h"
+#include "cunk/print.h"
 
 #include "../common/common_private.h"
 
@@ -180,11 +181,21 @@ int main() {
     glfwSwapInterval(1);
 
     while (!glfwWindowShouldClose(get_glfw_handle(window))) {
+        double then = glfwGetTime();
         camera_move_freelook(&camera, window, &camera_state);
 
         draw_cubes();
 
         glfwSwapBuffers(get_glfw_handle(window));
+        double now = glfwGetTime();
+        double delta = now - then;
+        double fps = 1.0 / delta;
+        int ifps = (int) fps;
+
+        const char* t = format_string("FPS: %d", ifps);
+        glfwSetWindowTitle(get_glfw_handle(window), t);
+        free(t);
+
         glfwPollEvents();
     }
     glfwTerminate();
