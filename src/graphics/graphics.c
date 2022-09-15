@@ -85,8 +85,10 @@ void gfx_cmd_set_shader_extern(GfxCtx* ctx, const char* name, void* data) {
         int loc = glad_glGetUniformLocation(ctx->shader->program, name);
         if (strcmp(name, uname) == 0) {
             switch(type) {
-                case GL_INT: GL_CHECK(glUniform1i(loc, *((int*) data)), return); break;
                 case GL_FLOAT_MAT4: GL_CHECK(glUniformMatrix4fv(loc, 1, GL_FALSE, data), return); break;
+                case GL_INT: GL_CHECK(glUniform1i(loc, *((int*) data)), return); break;
+                case GL_INT_VEC2: GL_CHECK(glUniform2iv(loc, 1, data), return); break;
+                case GL_INT_VEC3: GL_CHECK(glUniform3iv(loc, 1, data), return); break;
                 default: abort(); // todo
             }
             return;
