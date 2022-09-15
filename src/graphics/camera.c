@@ -13,7 +13,7 @@ static Mat4f camera_rotation_matrix(const Camera* camera) {
 
 Mat4f camera_get_view_mat4(const Camera* camera, const Window* window) {
     Mat4f matrix = identity_mat4f;
-    matrix = mul_mat4f(translate_mat4f(camera->position), matrix);
+    matrix = mul_mat4f(translate_mat4f(vec3f_neg(camera->position)), matrix);
     matrix = mul_mat4f(camera_rotation_matrix(camera), matrix);
     float ratio = ((float) window->width) / ((float) window->height);
     matrix = mul_mat4f(perspective_mat4f(ratio, camera->fov, 0.1f, 1000.f), matrix);
@@ -21,7 +21,7 @@ Mat4f camera_get_view_mat4(const Camera* camera, const Window* window) {
 }
 
 Vec3f camera_get_forward_vec(const Camera* cam) {
-    Vec4f initial_forward = { .z = 1, .w = 1 };
+    Vec4f initial_forward = { .z = -1, .w = 1 };
     // we invert the rotation matrix and use the front vector from the camera space to get the one in world space
     Mat4f matrix = invert_mat4(camera_rotation_matrix(cam));
     Vec4f result = mul_mat4f_vec4f(matrix, initial_forward);
@@ -29,7 +29,7 @@ Vec3f camera_get_forward_vec(const Camera* cam) {
 }
 
 Vec3f camera_get_left_vec(const Camera* cam) {
-    Vec4f initial_forward = { .x = 1, .w = 1 };
+    Vec4f initial_forward = { .x = -1, .w = 1 };
     Mat4f matrix = invert_mat4(camera_rotation_matrix(cam));
     Vec4f result = mul_mat4f_vec4f(matrix, initial_forward);
     return vec3f_scale(result.xyz, 1.0f / result.w);

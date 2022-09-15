@@ -52,9 +52,9 @@ static float frand() {
 }
 
 static void init_chunk(Chunk* chunk) {
-    for (int i = 0; i < 16; i+=4)
-        for (int j = 0; j < 16; j+=4)
-            for (int k = 0; k < 384; k+=4) {
+    for (int i = 0; i < 16; i+=8)
+        for (int j = 0; j < 16; j+=8)
+            for (int k = 0; k < 64; k+=8) {
                 chunk_set_block_data(chunk, i, k, j, 1);
                 assert(chunk_get_block_data(chunk, i, k, j) == 1);
             }
@@ -113,10 +113,18 @@ static void key_callback(GLFWwindow* handle, int key, int scancode, int action, 
     }
 }
 
+#define WORLD_SIZE 32
+typedef struct {
+    Chunk chunk;
+    ChunkMesh* mesh;
+} WorldChunk;
+
+WorldChunk world[WORLD_SIZE][WORLD_SIZE];
+
 static Camera camera = {
-    .position = { .x = 0, .y = 0, .z = 0 },
+    .position = { .x = (WORLD_SIZE * CUNK_CHUNK_SIZE) / 2, .y = 64 + 5, .z = (WORLD_SIZE * CUNK_CHUNK_SIZE) / 2 },
     .rotation = {
-        .yaw = 0, .pitch = 0
+        .yaw = M_PI * 0.5f * 1.5f, .pitch = 0
     },
     .fov = 90,
 };
@@ -124,11 +132,6 @@ static CameraFreelookState camera_state = {
     .fly_speed = 0.25f,
     .mouse_sensitivity = 2.0f
 };
-
-static Chunk chunk = {
-    .x = 0, .y = 0, .z = 0
-};
-static ChunkMesh* mesh;
 
 static void draw_chunks() {
     gfx_cmd_resize_viewport(ctx, window);
@@ -146,14 +149,26 @@ static void draw_chunks() {
 
     gfx_cmd_set_shader_extern(ctx, "myMatrix", &matrix.arr);
     gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);
-    int chunk_position[3] = { mesh->x, mesh->y, mesh->z };
-    gfx_cmd_set_shader_extern(ctx, "chunk_position", &chunk_position);
 
-    gfx_cmd_set_vertex_input(ctx, "vertexIn", mesh->buf, 3, sizeof(float) * 5, 0);
-    gfx_cmd_set_vertex_input(ctx, "texCoordIn", mesh->buf, 2, sizeof(float) * 5, sizeof(float) * 3);
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
+            WorldChunk wc = world[z][x];
+            if (!wc.mesh)
+                continue;
+            ChunkMesh* mesh = wc.mesh;
+            if (mesh->num_verts == 0)
+                continue;
 
-    assert(mesh->num_verts > 0);
-    gfx_cmd_draw_arrays(ctx, 0, 36 * mesh->num_verts);
+            int chunk_position[3] = { mesh->x, mesh->y, mesh->z };
+            gfx_cmd_set_shader_extern(ctx, "chunk_position", &chunk_position);
+
+            gfx_cmd_set_vertex_input(ctx, "vertexIn", mesh->buf, 3, sizeof(float) * 5, 0);
+            gfx_cmd_set_vertex_input(ctx, "texCoordIn", mesh->buf, 2, sizeof(float) * 5, sizeof(float) * 3);
+
+            assert(mesh->num_verts > 0);
+            gfx_cmd_draw_arrays(ctx, 0, 36 * mesh->num_verts);
+        }
+    }
 }
 
 #define SMOOTH_FPS_ACC_FRAMES 32
@@ -165,8 +180,16 @@ int main() {
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
     shader = create_shader(ctx, test_vs_data, test_fs_data);
-    init_chunk(&chunk);
-    mesh = update_chunk_mesh(&chunk, mesh);
+
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
+            WorldChunk* wc = &world[z][x];
+            wc->chunk.x = x;
+            wc->chunk.z = z;
+            init_chunk(&wc->chunk);
+            wc->mesh = update_chunk_mesh(&wc->chunk, wc->mesh);
+        }
+    }
 
     fflush(stdout);
     fflush(stderr);
