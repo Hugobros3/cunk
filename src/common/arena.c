@@ -76,7 +76,7 @@ char* cunk_arena_alloc_bytes(Arena* a, size_t size) {
     if (a->pages_count > 0)
         last_page = &((Page*) cunk_growy_data(a->pages))[a->pages_count - 1];
 
-    if (!last_page || (last_page->used + size) < last_page->size) {
+    if (!last_page || (last_page->used + size) >= last_page->size) {
         size_t new_page_size = size < a->page_size ? a->page_size : size;
         Page new_page = {
             .size = new_page_size,

@@ -94,12 +94,14 @@ Printer* cunk_print(Printer* p, const char* f, ...) {
                 tmp = alloc = realloc(alloc, bufsize);
         }
 
+        tmp[bufsize - 1] = '?';
+
         va_list l;
         va_start(l, f);
         written = vsnprintf(tmp, bufsize, f, l);
         va_end(l);
 
-        if (written <= bufsize)
+        if (written <= bufsize && tmp[written] == '\0')
             break;
 
         // increase buffer size and try again
