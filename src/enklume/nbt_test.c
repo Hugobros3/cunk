@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
         printf(".dat file detected, it needs decompression\n");
         printf("compressed size: %llu\n", buf_size);
         Growy* g = cunk_new_growy();
-        cunk_inflate(buf_size, buf, g);
+        cunk_inflate(ZLib_GZip, buf_size, buf, g);
         free(buf);
         buf_size = cunk_growy_size(g);
         buf = cunk_growy_deconstruct(g);

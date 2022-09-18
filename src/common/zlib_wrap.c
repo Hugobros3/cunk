@@ -30,7 +30,17 @@ void zerr(int ret) {
     }
 }
 
-bool cunk_inflate(size_t src_size, const char* input_data, Growy* output) {
+#pragma GCC diagnostic error "-Wswitch"
+
+static int format_bits(ZLibMode mode) {
+    switch (mode) {
+        case ZLib_Deflate: return -MAX_WBITS;
+        case ZLib_Zlib:    return MAX_WBITS;
+        case ZLib_GZip:    return MAX_WBITS | 16;
+    }
+}
+
+bool cunk_inflate(ZLibMode mode, size_t src_size, const char* input_data, Growy* output) {
     int ret;
     z_stream strm;
     unsigned char out[ZLIB_CHUNK_SIZE];
@@ -41,7 +51,7 @@ bool cunk_inflate(size_t src_size, const char* input_data, Growy* output) {
     strm.opaque = Z_NULL;
     strm.avail_in = 0;
     strm.next_in = Z_NULL;
-    ret = inflateInit2(&strm, 16+MAX_WBITS);
+    ret = inflateInit2(&strm, format_bits(mode));
     if (ret != Z_OK)
         return false;
 
