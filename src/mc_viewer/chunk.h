@@ -24,6 +24,6 @@ BlockData chunk_get_block_data(const Chunk*, unsigned x, unsigned y, unsigned z)
 void chunk_set_block_data(Chunk*, unsigned x, unsigned y, unsigned z, BlockData);
 
 typedef struct Growy_ Growy;
-void chunk_mesh(const Chunk* chunk, Growy* g, size_t* num_verts);
+void chunk_mesh(const Chunk* chunk, const Chunk* neighbours[3][3][3], Growy* g, size_t* num_verts);
 
 #endif

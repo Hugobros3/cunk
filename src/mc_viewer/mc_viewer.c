@@ -73,7 +73,7 @@ static ChunkMesh* update_chunk_mesh(const Chunk* chunk, ChunkMesh* mesh) {
     } else return NULL;
 
     Growy* g = cunk_new_growy();
-    chunk_mesh(chunk, g, &mesh->num_verts);
+    chunk_mesh(chunk, NULL, g, &mesh->num_verts);
 
     fprintf(stderr, "%zu vertices, totalling %zu KiB of data\n", mesh->num_verts, mesh->num_verts * sizeof(float) * 36 * 5 / 1024);
     fflush(stderr);
