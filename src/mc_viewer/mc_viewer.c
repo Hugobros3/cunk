@@ -2,6 +2,8 @@
 #include "cunk/math.h"
 #include "cunk/print.h"
 #include "cunk/memory.h"
+#include "cunk/enklume.h"
+#include "cunk/nbt.h"
 
 #include "chunk.h"
 
@@ -113,7 +115,7 @@ static void key_callback(GLFWwindow* handle, int key, int scancode, int action, 
     }
 }
 
-#define WORLD_SIZE 32
+#define WORLD_SIZE 16
 typedef struct {
     Chunk chunk;
     ChunkMesh* mesh;
@@ -175,7 +177,75 @@ static void draw_chunks() {
 static double last_frames_times[SMOOTH_FPS_ACC_FRAMES] = { 0 };
 static int frame = 0;
 
-int main() {
+void load_map(const char* map_dir) {
+    Printer* p = cunk_open_file_as_printer(stdout);
+
+    McWorld* w = cunk_open_mcworld(map_dir);
+    assert(w);
+
+    McRegion* r = cunk_open_mcregion(w, 0, 0);
+    assert(r);
+
+    for (int rcx = 0; rcx < 8; rcx++)
+        for (int rcz = 0; rcz < 8; rcz++) {
+            McChunk* c = cunk_open_mcchunk(r, rcx, rcz);
+            assert(c);
+
+            const NBT_Object* o = cunk_mcchunk_get_root(c);
+            assert(o);
+            o = cunk_nbt_compound_access(o, "Level");
+            assert(o);
+            o = cunk_nbt_compound_access(o, "Sections");
+            assert(o);
+            const NBT_List* sections = cunk_nbt_extract_list(o);
+            assert(sections);
+            assert(sections->tag == NBT_Tag_Compound);
+            for (size_t i = 0; i < sections->count; i++) {
+                const NBT_Compound* section = &sections->bodies[i].p_compound;
+                int8_t section_y = *cunk_nbt_extract_byte(cunk_nbt_compound_direct_access(section, "Y"));
+                printf("Y: %d\n", section_y);
+                const NBT_Object* block_states = cunk_nbt_compound_direct_access(section, "BlockStates");
+                const NBT_Object* palette = cunk_nbt_compound_direct_access(section, "Palette");
+                if (!(block_states && palette))
+                    continue;
+                // cunk_print_nbt(p, palette);
+                assert(block_states->tag == NBT_Tag_LongArray && palette->tag == NBT_Tag_List);
+                const NBT_LongArray* block_state_arr = cunk_nbt_extract_long_array(block_states);
+                int palette_size = palette->body.p_list.count;
+
+                bool is_air[palette_size];
+                for (size_t j = 0; j < palette_size; j++) {
+                    const NBT_Compound* color = &palette->body.p_list.bodies[j].p_compound;
+                    const char* name = *cunk_nbt_extract_string(cunk_nbt_compound_direct_access(color, "Name"));
+                    assert(name);
+                    if (strcmp(name, "minecraft:air") == 0)
+                        is_air[j] = true;
+                }
+
+                int bits = needed_bits(palette_size);
+                if (bits < 4)
+                    bits = 4;
+                int longbits = block_state_arr->count * sizeof(int64_t) * CHAR_BIT;
+                printf("%d %d %d %d\n", palette_size, bits, longbits, bits * 16 * 16 * 16);
+                fflush(stdout);
+
+                BlockData (*data)[16][16][16] = &world[rcx][rcz].chunk.sections[section_y]->block_data;
+                for (int x = 0; x < 16; x++)
+                    for (int y = 0; y < 16; y++)
+                        for (int z = 0; z < 16; z++) {
+                            int pos = y * 16 * 16 + z * 16 + x;
+                            int64_t block_state = fetch_bits_long_arr(block_state_arr->arr, true, pos * bits, bits);
+                            assert(block_state < palette_size);
+                            block_state %= palette_size;
+                            chunk_set_block_data(&world[rcx][rcz].chunk, x, y + section_y * 16, z,  is_air[block_state] ? 0 : 1);
+                            // ((*data)[x][y][z]) = is_air[block_state] ? 0 : 1;
+                        }
+                // cunk_print_nbt(p, block_states);
+            }
+        }
+}
+
+int main(int argc, char* argv[]) {
     window = create_window("Hello", 640, 480, &ctx);
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
@@ -187,6 +257,15 @@ int main() {
             wc->chunk.x = x;
             wc->chunk.z = z;
             init_chunk(&wc->chunk);
+            // wc->mesh = update_chunk_mesh(&wc->chunk, wc->mesh);
+        }
+    }
+
+    load_map(argv[1]);
+
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
+            WorldChunk* wc = &world[z][x];
             wc->mesh = update_chunk_mesh(&wc->chunk, wc->mesh);
         }
     }
