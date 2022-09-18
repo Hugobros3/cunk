@@ -143,3 +143,21 @@ const char* cunk_printer_growy_unrwap(Printer* p) {
     assert(p->output == PoGrowy);
     return cunk_growy_deconstruct(p->growy);
 }
+
+const char* replace_string(const char* source, const char* match, const char* replace_with) {
+    Growy* g = cunk_new_growy();
+    size_t match_len = strlen(match);
+    size_t replace_len = strlen(replace_with);
+    const char* next_match = strstr(source, match);
+    while (next_match != NULL) {
+        size_t diff = next_match - source;
+        cunk_growy_append_bytes(g, diff, (char*) source);
+        cunk_growy_append_bytes(g, replace_len, (char*) replace_with);
+        source = next_match + match_len;
+        next_match = strstr(source, match);
+    }
+    cunk_growy_append_bytes(g, strlen(source), (char*) source);
+    char zero = '\0';
+    cunk_growy_append_bytes(g, 1, &zero);
+    return cunk_growy_deconstruct(g);
+}
