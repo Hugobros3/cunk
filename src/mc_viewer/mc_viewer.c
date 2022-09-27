@@ -123,6 +123,30 @@ typedef struct {
 
 WorldChunk world[WORLD_SIZE][WORLD_SIZE];
 
+void load_from_mcchunk(Chunk* dst_chunk, McChunk* chunk);
+
+void load_map(const char* map_dir) {
+    Printer* p = cunk_open_file_as_printer(stdout);
+
+    McWorld* w = cunk_open_mcworld(map_dir);
+    assert(w);
+
+    for (int rx = 0; rx < 2; rx++) for (int rz = 0; rz < 2; rz++) {
+        McRegion* r = cunk_open_mcregion(w,  0+ rx, 0 + rz);
+        if (!r)
+            continue;
+        for (int rcx = 0; rcx < 32; rcx++) for (int rcz = 0; rcz < 32; rcz++) {
+            int dcx = rx * 32 + rcx;
+            int dcz = rz * 32 + rcz;
+            if (dcx >= 0 && dcz >= 0 && dcx < WORLD_SIZE && dcz < WORLD_SIZE) {
+                McChunk* c = cunk_open_mcchunk(r, rcx, rcz);
+                if (c)
+                    load_from_mcchunk(&world[dcx][dcz].chunk, c);
+            }
+        }
+    }
+}
+
 static Camera camera = {
     .position = { .x = (WORLD_SIZE * CUNK_CHUNK_SIZE) / 2, .y = 64 + 5, .z = (WORLD_SIZE * CUNK_CHUNK_SIZE) / 2 },
     .rotation = {
@@ -176,105 +200,6 @@ static void draw_chunks() {
 #define SMOOTH_FPS_ACC_FRAMES 32
 static double last_frames_times[SMOOTH_FPS_ACC_FRAMES] = { 0 };
 static int frame = 0;
-
-#define MC_1_18_DATA_VERSION 2825
-
-void load_from_mcchunk(int chunk_x, int chunk_z, McChunk* chunk) {
-    McDataVersion ver = cunk_mcchunk_get_data_version(chunk);
-    bool post_1_18 = ver > MC_1_18_DATA_VERSION;
-
-    const NBT_Object *o = cunk_mcchunk_get_root(chunk);
-    assert(o);
-    const NBT_Object *level = cunk_nbt_compound_access(o, "Level");
-    if (level)
-        o = level;
-    else
-        assert(post_1_18);
-    assert(o);
-    o = cunk_nbt_compound_access(o, post_1_18 ? "sections" : "Sections");
-    assert(o);
-    const NBT_List* sections = cunk_nbt_extract_list(o);
-    assert(sections);
-    assert(sections->tag == NBT_Tag_Compound);
-    for (size_t i = 0; i < sections->count; i++) {
-        const NBT_Compound* section = &sections->bodies[i].p_compound;
-        int8_t section_y = *cunk_nbt_extract_byte(cunk_nbt_compound_direct_access(section, "Y"));
-        if (section_y < 0)
-            continue;
-
-        // Starting with 1.18, block data for a chunk section is stored in a 'block_states' compound
-        const NBT_Compound* container = section;
-        const NBT_Object* block_states_container = cunk_nbt_compound_direct_access(section, "block_states");
-        if (post_1_18 && block_states_container)
-            container = cunk_nbt_extract_compound(block_states_container);
-
-        const NBT_Object* block_states = cunk_nbt_compound_direct_access(container, post_1_18 ? "data" : "BlockStates");
-        const NBT_Object* palette = cunk_nbt_compound_direct_access(container, post_1_18 ? "palette" : "Palette");
-        if (!(block_states && palette))
-            continue;
-        // cunk_print_nbt(p, palette);
-        assert(block_states->tag == NBT_Tag_LongArray && palette->tag == NBT_Tag_List);
-        const NBT_LongArray* block_state_arr = cunk_nbt_extract_long_array(block_states);
-        int palette_size = palette->body.p_list.count;
-
-        bool is_air[palette_size];
-        for (size_t j = 0; j < palette_size; j++) {
-            const NBT_Compound* color = &palette->body.p_list.bodies[j].p_compound;
-            const char* name = *cunk_nbt_extract_string(cunk_nbt_compound_direct_access(color, "Name"));
-            assert(name);
-            if (strcmp(name, "minecraft:air") == 0)
-                is_air[j] = true;
-        }
-
-        int bits = needed_bits(palette_size);
-        if (bits < 4)
-            bits = 4;
-        int longbits = block_state_arr->count * sizeof(int64_t) * CHAR_BIT;
-        // printf("%d %d %d %d\n", palette_size, bits, longbits, bits * 16 * 16 * 16);
-        fflush(stdout);
-
-        int aligned_bitpos = 0;
-        for (int pos = 0; pos < 16 * 16 * 16; pos++) {
-            int x = (pos >> 4) & 15;
-            int y = (pos >> 8) & 15;
-            int z = (pos >> 0) & 15;
-
-            uint64_t block_state = fetch_bits_long_arr(block_state_arr->arr, true, aligned_bitpos, bits);
-            aligned_bitpos += bits;
-            // "Since 1.16, the indices are not packed across multiple elements of the array, meaning that if there is no more space in a given 64-bit integer for the next index, it starts instead at the first (lowest) bit of the next 64-bit element."
-            // https://minecraft.fandom.com/wiki/Chunk_format#NBT_structure
-            if (ver >= 2504) {
-                int starting_long = aligned_bitpos / 64;
-                int finishing_long = (aligned_bitpos + bits - 1) / 64;
-                if (starting_long != finishing_long)
-                    aligned_bitpos = finishing_long * 64;
-            }
-
-            assert(block_state < palette_size);
-            block_state %= palette_size;
-            chunk_set_block_data(&world[chunk_x][chunk_z].chunk, x, y + section_y * 16, z, is_air[block_state] ? 0 : 1);
-    }
-        // cunk_print_nbt(p, block_states);
-    }
-}
-
-void load_map(const char* map_dir) {
-    Printer* p = cunk_open_file_as_printer(stdout);
-
-    McWorld* w = cunk_open_mcworld(map_dir);
-    assert(w);
-
-    for (int rx = 0; rx < 2; rx++) for (int rz = 0; rz < 2; rz++) {
-        McRegion* r = cunk_open_mcregion(w, rx, rz);
-        if (!r)
-            continue;
-        for (int rcx = 0; rcx < 8; rcx++) for (int rcz = 0; rcz < 8; rcz++) {
-            McChunk* c = cunk_open_mcchunk(r, rcx, rcz);
-            if (c)
-                load_from_mcchunk(rx * 8 + rcx, rz * 8 + rcz, c);
-        }
-    }
-}
 
 int main(int argc, char* argv[]) {
     window = create_window("Hello", 640, 480, &ctx);

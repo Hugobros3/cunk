@@ -35,8 +35,8 @@ static NBT_Body cunk_decode_nbt_body(NBT_Tag tag, const char* buffer_start, cons
             int32_t size = body.p_byte_array.count = read(int32_t);
             assert(size >= 0);
             int8_t* data = body.p_byte_array.arr = cunk_arena_alloc_bytes(arena, sizeof(int8_t) * size);
-            advance_bytes(sizeof(int8_t) * size);
             memcpy(data, *buffer, sizeof(int8_t) * size);
+            advance_bytes(sizeof(int8_t) * size);
             break;
         } case NBT_Tag_String: {
             uint16_t size = read(uint16_t);
