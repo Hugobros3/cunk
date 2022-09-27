@@ -133,6 +133,8 @@ McChunk* cunk_open_mcchunk(McRegion* region, unsigned int x, unsigned int z) {
     Arena* a = cunk_new_arena();
     NBT_Object* root = NULL;
     McRegionPayload* payload = &region->decoded_payloads[z][x];
+    if (payload->length == 0)
+        return NULL;
     const char* nbt_data = payload->compressed_data;
     uint32_t nbt_data_size = payload->length;
     switch ((McChunkCompression) payload->compression_type) {
@@ -166,3 +168,10 @@ McChunk* cunk_open_mcchunk(McRegion* region, unsigned int x, unsigned int z) {
 }
 
 const NBT_Object* cunk_mcchunk_get_root(const McChunk* c) { return c->root; }
+
+McDataVersion cunk_mcchunk_get_data_version(const McChunk* c) {
+    const NBT_Object* o = cunk_nbt_compound_access(c->root, "DataVersion");
+    if (o)
+        return *cunk_nbt_extract_int(o);
+    return 0;
+}
