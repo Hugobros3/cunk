@@ -1,6 +1,7 @@
 #include "common_private.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <limits.h>
 
 static void test_bit_fetches() {
     int64_t arr[] = { 0, 1, 2, 3, 0xDEADBEEF };

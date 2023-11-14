@@ -2,6 +2,7 @@
 #define CUNK_CHUNK
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define CUNK_CHUNK_SIZE 16
 #define CUNK_CHUNK_MAX_HEIGHT 384

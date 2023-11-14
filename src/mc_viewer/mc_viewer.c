@@ -12,10 +12,6 @@
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 
-#define INCBIN_PREFIX
-#define INCBIN_STYLE INCBIN_STYLE_SNAKE
-#include "incbin.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -23,9 +19,6 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
-
-INCTXT(test_fs, "test.fs");
-INCTXT(test_vs, "test.vs");
 
 static Window* window;
 static GfxCtx* ctx;
@@ -205,7 +198,11 @@ int main(int argc, char* argv[]) {
     window = create_window("Hello", 640, 480, &ctx);
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
-    shader = create_shader(ctx, test_vs_data, test_fs_data);
+    char* test_vs, *test_fs;
+    size_t test_vs_size, test_fs_size;
+    read_file("../shaders/mc_viewer.vs", &test_vs_size, &test_vs);
+    read_file("../shaders/mc_viewer.fs", &test_fs_size, &test_fs);
+    shader = create_shader(ctx, test_vs, test_fs);
 
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int z = 0; z < WORLD_SIZE; z++) {

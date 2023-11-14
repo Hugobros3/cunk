@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <limits.h>
 
 // MSVC needs not apply.
 static_assert(__STDC__ == 1, "A conformant C compiler is required.");

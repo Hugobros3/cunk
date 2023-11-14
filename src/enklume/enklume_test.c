@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <limits.h>
 
 int main(int argc, char** argv) {
     Printer* p = cunk_open_file_as_printer(stdout);

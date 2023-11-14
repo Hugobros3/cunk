@@ -7,9 +7,6 @@
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 
-#define INCBIN_PREFIX
-#define INCBIN_STYLE INCBIN_STYLE_SNAKE
-#include "incbin.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,9 +14,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-
-INCTXT(test_fs, "test.fs");
-INCTXT(test_vs, "test.vs");
 
 static Window* window;
 static GfxCtx* ctx;
@@ -195,7 +189,11 @@ int main() {
     window = create_window("Hello", 640, 480, &ctx);
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
-    shader = create_shader(ctx, test_vs_data, test_fs_data);
+    char* test_vs, *test_fs;
+    size_t test_vs_size, test_fs_size;
+    read_file("../shaders/test.vs", &test_vs_size, &test_vs);
+    read_file("../shaders/test.fs", &test_fs_size, &test_fs);
+    shader = create_shader(ctx, test_vs, test_fs);
     init_cubes();
 
     fflush(stdout);

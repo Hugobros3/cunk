@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 // this does not work on non-POSIX compliant systems
 // Cygwin/MINGW works though.
