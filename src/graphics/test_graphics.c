@@ -173,7 +173,7 @@ static void draw_cubes() {
     matrix = mul_mat4f(camera_get_view_mat4(&camera, window), matrix);
 
     gfx_cmd_set_shader_extern(ctx, "myMatrix", &matrix.arr);
-    gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);
+    //gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);
 
     gfx_cmd_set_vertex_input(ctx, "vertexIn", buffer, 3, sizeof(float) * 5, 0);
     gfx_cmd_set_vertex_input(ctx, "texCoordIn", buffer, 2, sizeof(float) * 5, sizeof(float) * 3);
@@ -192,7 +192,7 @@ int main() {
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
     read_file("../shaders/test.vs", &test_vs_size, &test_vs);
-    read_file("../shaders/test.fs", &test_fs_size, &test_fs);
+    read_file("../shaders/test.frag.glsl", &test_fs_size, &test_fs);
     shader = create_shader(ctx, test_vs, test_fs);
     init_cubes();
 

@@ -34,8 +34,9 @@ bool read_file(const char* filename, size_t* out_size, char** out_buffer) {
 		length = ftell(f);
 		fseek(f, 0, SEEK_SET);
 		
-		buffer = *out_buffer = malloc(length);
+		buffer = *out_buffer = malloc(length + 1);
 		if (buffer) {
+            buffer[length] = '\0';
 			fread(buffer, 1, length, f);
             *out_size = (size_t) length;
             fclose(f);
