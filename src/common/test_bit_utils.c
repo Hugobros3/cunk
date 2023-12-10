@@ -1,4 +1,5 @@
-#include "common_private.h"
+#include "cunk/util.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <limits.h>
