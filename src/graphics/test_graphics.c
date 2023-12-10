@@ -1,6 +1,7 @@
 #include "cunk/graphics.h"
 #include "cunk/math.h"
 #include "cunk/print.h"
+#include "cunk/io.h"
 
 #include "../common/common_private.h"
 
@@ -195,8 +196,8 @@ int main() {
 
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
-    read_file("../shaders/test.vert.glsl", &test_vs_size, (void**) &test_vs);
-    read_file("../shaders/test.frag.glsl", &test_fs_size, (void**) &test_fs);
+    read_file("../shaders/test.vert.glsl", &test_vs_size, &test_vs);
+    read_file("../shaders/test.frag.glsl", &test_fs_size, &test_fs);
     shader = create_shader(ctx, test_vs, test_fs);
     init_cubes();
 

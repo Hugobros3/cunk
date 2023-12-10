@@ -2,6 +2,8 @@
 #include "cunk/nbt.h"
 #include "cunk/memory.h"
 #include "cunk/print.h"
+#include "cunk/io.h"
+
 #include "../common/common_private.h"
 
 #include <stdlib.h>
@@ -78,7 +80,7 @@ McRegion* cunk_open_mcregion(McWorld* world, int x, int z) {
 
     size_t size;
     void* contents;
-    if (!read_file(path, &size, &contents))
+    if (!read_file(path, &size, (char**) &contents))
         goto fail;
 
     McRegion* region = calloc(1, sizeof(McRegion));

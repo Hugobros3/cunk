@@ -1,6 +1,7 @@
 #include "cunk/memory.h"
 #include "cunk/nbt.h"
 #include "cunk/print.h"
+#include "cunk/io.h"
 
 #include "../common/common_private.h"
 
@@ -14,7 +15,7 @@ int main(int argc, char** argv) {
     void* buf;
     size_t buf_size;
     printf("Using test file %s\n", argv[1]);
-    if (!read_file(argv[1], &buf_size, &buf))
+    if (!read_file(argv[1], &buf_size, (char**) &buf))
         return 1;
 
     if (string_ends_with(argv[1], ".dat")) {
