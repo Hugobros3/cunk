@@ -57,7 +57,7 @@ static void init_chunk(Chunk* chunk) {
 
 static ChunkMesh* update_chunk_mesh(const Chunk* chunk, ChunkMesh* mesh) {
     if (mesh) {
-        destroy_buffer(mesh->buf);
+        gfx_destroy_buffer(mesh->buf);
     } else if (chunk) {
         mesh = malloc(sizeof(ChunkMesh));
         mesh->x = chunk->x;
@@ -74,8 +74,8 @@ static ChunkMesh* update_chunk_mesh(const Chunk* chunk, ChunkMesh* mesh) {
     size_t buffer_size = cunk_growy_size(g);
     char* buffer = cunk_growy_deconstruct(g);
 
-    mesh->buf = create_buffer(ctx, buffer_size);
-    copy_to_buffer(mesh->buf, buffer, buffer_size);
+    mesh->buf = gfx_create_buffer(ctx, buffer_size);
+    gfx_copy_to_buffer(mesh->buf, buffer, buffer_size);
     free(buffer);
     return mesh;
 }
@@ -195,14 +195,14 @@ static double last_frames_times[SMOOTH_FPS_ACC_FRAMES] = { 0 };
 static int frame = 0;
 
 int main(int argc, char* argv[]) {
-    window = create_window("Hello", 640, 480, &ctx);
+    window = gfx_create_window("Hello", 640, 480, &ctx);
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
     read_file("../shaders/mc_viewer.vs", &test_vs_size, &test_vs);
     read_file("../shaders/mc_viewer.fs", &test_fs_size, &test_fs);
-    shader = create_shader(ctx, test_vs, test_fs);
+    shader = gfx_create_shader(ctx, test_vs, test_fs);
 
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int z = 0; z < WORLD_SIZE; z++) {

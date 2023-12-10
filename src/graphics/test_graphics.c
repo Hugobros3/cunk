@@ -85,7 +85,7 @@ static float frand() {
 
 static void init_cubes() {
     if (buffer)
-        destroy_buffer(buffer);
+        gfx_destroy_buffer(buffer);
     
     fprintf(stderr, "%d cubes, totalling %d KiB of data\n", config.num_cubes, config.num_cubes * sizeof(geometryData) / 1024);
     fflush(stderr);
@@ -105,8 +105,8 @@ static void init_cubes() {
         }
     }
 
-    buffer = create_buffer(ctx, buffer_size);
-    copy_to_buffer(buffer, geom_tmp, buffer_size);
+    buffer = gfx_create_buffer(ctx, buffer_size);
+    gfx_copy_to_buffer(buffer, geom_tmp, buffer_size);
     free(geom_tmp);
 }
 
@@ -186,14 +186,14 @@ static double last_frames_times[SMOOTH_FPS_ACC_FRAMES] = { 0 };
 static int frame = 0;
 
 int main() {
-    window = create_window("Hello", 640, 480, &ctx);
+    window = gfx_create_window("Hello", 640, 480, &ctx);
     glfwSetKeyCallback(get_glfw_handle(window), key_callback);
 
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
     read_file("../shaders/test.vs", &test_vs_size, &test_vs);
     read_file("../shaders/test.fs", &test_fs_size, &test_fs);
-    shader = create_shader(ctx, test_vs, test_fs);
+    shader = gfx_create_shader(ctx, test_vs, test_fs);
     init_cubes();
 
     fflush(stdout);

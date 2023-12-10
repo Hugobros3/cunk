@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-Window* create_window(const char* title, int width, int height, GfxCtx** ctx) {
+Window* gfx_create_window(const char* title, int width, int height, GfxCtx** ctx) {
     Window* win = calloc(1, sizeof(Window));
     
     glfwInit();
@@ -33,7 +33,7 @@ Window* create_window(const char* title, int width, int height, GfxCtx** ctx) {
 
 GLFWwindow* get_glfw_handle(Window* w) { return w->handle; }
 
-GfxBuffer* create_buffer(GfxCtx* ctx, size_t size) {
+GfxBuffer* gfx_create_buffer(GfxCtx* ctx, size_t size) {
     GfxBuffer* buf = calloc(1, sizeof(GfxBuffer));
     buf->size = size;
     glGenBuffers(1, &buf->vbo);
@@ -41,12 +41,12 @@ GfxBuffer* create_buffer(GfxCtx* ctx, size_t size) {
     return buf;
 }
 
-void copy_to_buffer(GfxBuffer* buffer, void* d, size_t s) {
+void gfx_copy_to_buffer(GfxBuffer* buffer, void* d, size_t s) {
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
     glBufferData(GL_ARRAY_BUFFER, s, d, GL_STATIC_DRAW);
 }
 
-void destroy_buffer(GfxBuffer* buffer) {
+void gfx_destroy_buffer(GfxBuffer* buffer) {
     glDeleteBuffers(1, &buffer->vbo);
     free(buffer);
 }

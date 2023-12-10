@@ -11,11 +11,11 @@ typedef struct GfxCtx_ GfxCtx;
 typedef struct GfxShader_ GfxShader;
 typedef struct GfxBuffer_ GfxBuffer;
 
-Window* create_window(const char* title, int width, int height, GfxCtx**);
-GfxShader* create_shader(GfxCtx*, const char* vs, const char* fs);
-GfxBuffer* create_buffer(GfxCtx*, size_t);
-void copy_to_buffer(GfxBuffer*, void*, size_t);
-void destroy_buffer(GfxBuffer*);
+Window* gfx_create_window(const char* title, int width, int height, GfxCtx**);
+GfxShader* gfx_create_shader(GfxCtx*, const char* vs, const char* fs);
+GfxBuffer* gfx_create_buffer(GfxCtx*, size_t);
+void gfx_copy_to_buffer(GfxBuffer*, void*, size_t);
+void gfx_destroy_buffer(GfxBuffer*);
 
 void gfx_cmd_resize_viewport(GfxCtx*, Window*);
 void gfx_cmd_clear(GfxCtx*);

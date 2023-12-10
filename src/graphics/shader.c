@@ -22,7 +22,7 @@ static void print_program_log(GLuint program) {
     free(buf);
 }
 
-GfxShader* create_shader(GfxCtx* ctx, const char* vs, const char* fs) {
+GfxShader* gfx_create_shader(GfxCtx* ctx, const char* vs, const char* fs) {
     GfxShader* shader = calloc(1, sizeof(GfxShader));
 
     shader->vertex = glCreateShader(GL_VERTEX_SHADER);
