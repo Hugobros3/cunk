@@ -17,13 +17,15 @@ GLuint gfx_classify_texture(GfxTexture* t) {
 typedef enum {
     CFK_FLOAT,
     CFK_INTEGER,
-} GfxComponentFormatKind;
+} ComponentDataKind;
 
-static GfxComponentFormatKind get_component_format_kind(GfxTexCompFormat cf) {
+static ComponentDataKind get_component_format_kind(GfxTexCompFormat cf) {
+#define IsFloatUNORM() return CFK_FLOAT;
+#define IsFloatI() return CFK_INTEGER;
+#define IsFloatF() return CFK_FLOAT;
+#define IsFloat(W, T) case GFX_TCF_##T##W: IsFloat##T()
     switch (cf) {
-        case GFX_TCF_U8_UNORM: return CFK_FLOAT;
-        case GFX_TCF_I32: return CFK_INTEGER;
-        case GFX_TCF_F32: return CFK_FLOAT;
+TexCompFormats(IsFloat)
     }
 }
 
@@ -38,21 +40,34 @@ static GLenum get_texture_format_format(GfxTexFormat* f) {
 
 static GLenum get_texture_format_type(GfxTexCompFormat cf) {
     switch (cf) {
-        case GFX_TCF_U8_UNORM: return GL_UNSIGNED_BYTE;
+        case GFX_TCF_UNORM8: return GL_UNSIGNED_BYTE;
         case GFX_TCF_I32: return GL_UNSIGNED_INT;
         case GFX_TCF_F32: return GL_FLOAT;
     }
 }
 
-static GLint get_texture_format_internal_format(GfxTexFormat* f) {
-    // TODO: use explicitly sized formats where available
-    GfxTexFormat internal = *f;
-    internal.base = GFX_TCF_F32;
-    return get_texture_format_format(&internal);
+GLint explicitly_sized_internal_formats[][4] = {
+#define GenFormatsGeneric(W, T, S) [GFX_TCF_##T##W] = { GL_R##W##S, GL_RG##W##S, GL_RGB##W##S, GL_RGBA##W##S },
+#define GenFormatsUNORM(W, T) GenFormatsGeneric(W, T, )
+#define GenFormatsI(W, T) GenFormatsGeneric(W, T, I)
+#define GenFormatsF(W, T) GenFormatsGeneric(W, T, F)
+#define GenFormats(W, T) GenFormats##T(W, T)
+TexCompFormats(GenFormats)
+};
+
+static GLint get_texture_format_internal_format(GfxCtx* ctx, GfxTexFormat* f) {
+    // use explicitly sized formats where available
+    if (ctx->version.major >= 3) {
+        assert(f->base < sizeof(explicitly_sized_internal_formats) / sizeof(explicitly_sized_internal_formats[0]));
+        return explicitly_sized_internal_formats[f->base][f->num_components-1];
+    }
+    assert(get_component_format_kind(f->base) == CFK_FLOAT && "Integer textures are not supported");
+    return get_texture_format_format(f);
 }
 
 GfxTexture* gfx_create_texture(GfxCtx* ctx, unsigned width, unsigned height, unsigned depth, GfxTexFormat f) {
     GfxTexture* t = calloc(sizeof(GfxTexture), 1);
+    t->ctx = ctx;
     GL_CHECK(glGenTextures(1, &t->handle), return NULL);
     t->width = width;
     t->height = height;
@@ -68,7 +83,7 @@ GfxTexture* gfx_create_texture(GfxCtx* ctx, unsigned width, unsigned height, uns
 void gfx_upload_texture(GfxTexture* t, void* data) {
     GLuint class = gfx_classify_texture(t);
     glBindTexture(class, t->handle);
-    GLint internal_format = get_texture_format_internal_format(&t->format);
+    GLint internal_format = get_texture_format_internal_format(t->ctx, &t->format);
     GLenum pixel_data_format = get_texture_format_format(&t->format);
     GLenum pixel_data_type = get_texture_format_type(t->format.base);
     switch (class) {

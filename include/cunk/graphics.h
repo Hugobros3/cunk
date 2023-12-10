@@ -20,10 +20,14 @@ GfxBuffer* gfx_create_buffer(GfxCtx*, size_t);
 void gfx_copy_to_buffer(GfxBuffer*, void*, size_t);
 void gfx_destroy_buffer(GfxBuffer*);
 
+#define TexCompFormats(Mk) \
+Mk(8, UNORM) \
+Mk(32, I) \
+Mk(32, F) \
+
+#define TexCompFormat(W, T) GFX_TCF_##T##W,
 typedef enum {
-    GFX_TCF_U8_UNORM,
-    GFX_TCF_I32,
-    GFX_TCF_F32,
+TexCompFormats(TexCompFormat)
 } GfxTexCompFormat;
 typedef struct {
     GfxTexCompFormat base;

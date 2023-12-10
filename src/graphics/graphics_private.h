@@ -17,8 +17,13 @@ struct Window_ {
     int width, height;
 };
 
+typedef struct {
+    int major, minor;
+} GLVersion;
+
 struct GfxCtx_ {
     Window* window;
+    GLVersion version;
     GfxShader* shader;
     struct {
         bool broken_3dlabs_driver;
@@ -36,6 +41,7 @@ struct GfxBuffer_ {
 };
 
 struct GfxTexture_ {
+    GfxCtx* ctx;
     GLuint handle;
     size_t width, height, depth;
     GfxTexFormat format;
