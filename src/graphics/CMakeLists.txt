@@ -1,4 +1,4 @@
-add_library(graphics STATIC graphics.c shader.c camera.c texture.c window.c)
+add_library(graphics STATIC graphics.c shader.c camera.c buffer.c texture.c window.c)
 
 target_link_libraries(graphics PRIVATE common)
 find_package(glfw3 REQUIRED)
