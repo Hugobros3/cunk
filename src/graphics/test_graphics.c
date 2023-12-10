@@ -112,7 +112,7 @@ static void init_cubes() {
 }
 
 static void init_tex() {
-    GfxTexFormat f = { .base = GFX_TCF_U8_UNORM, .num_components = 3 };
+    GfxTexFormat f = { .base = GFX_TCF_UNORM8, .num_components = 3 };
     unsigned char tex_data[256 * 3];
     for (size_t x = 0; x < 16; x++) {
         for (size_t y = 0; y < 16; y++) {
