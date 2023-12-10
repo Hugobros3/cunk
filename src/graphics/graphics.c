@@ -43,7 +43,11 @@ void gfx_cmd_set_shader_extern(GfxCtx* ctx, const char* name, void* data) {
                 case GL_INT_VEC3: GL_CHECK(glUniform3iv(loc, 1, data), return); break;
                 case GL_SAMPLER_1D:
                 case GL_SAMPLER_2D:
-                case GL_SAMPLER_3D: {
+                case GL_SAMPLER_3D:
+                case GL_INT_SAMPLER_1D:
+                case GL_INT_SAMPLER_2D:
+                case GL_INT_SAMPLER_3D:
+                {
                     GLuint slot = ctx->shader->texture_slots[i];
                     glActiveTexture(GL_TEXTURE0 + slot);
                     GfxTexture* tex = (GfxTexture*) data;
