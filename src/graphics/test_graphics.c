@@ -1,8 +1,7 @@
 #include "cunk/graphics.h"
 #include "cunk/math.h"
 #include "cunk/print.h"
-
-#include "../common/common_private.h"
+#include "cunk/io.h"
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"

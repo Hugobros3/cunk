@@ -1,5 +1,5 @@
 #include "cunk/print.h"
-#include "common_private.h"
+#include "cunk/io.h"
 
 #include <stdlib.h>
 #include <stdio.h>
