@@ -14,6 +14,7 @@ typedef struct GfxTexture_ GfxTexture;
 
 Window* gfx_create_window(const char* title, int width, int height, GfxCtx**);
 void gfx_get_window_size(Window*, size_t*, size_t*);
+
 GfxShader* gfx_create_shader(GfxCtx*, const char* vs, const char* fs);
 
 GfxBuffer* gfx_create_buffer(GfxCtx*, size_t);
