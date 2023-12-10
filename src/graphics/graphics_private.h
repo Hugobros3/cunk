@@ -47,7 +47,16 @@ struct GfxTexture_ {
     GfxTexFormat format;
 };
 
-#define GL_CHECK(x, f) { x; GLint errcode = glGetError(); if (errcode != GL_NO_ERROR) { fprintf(stderr, "GL error after: " #x "\n"); f; } }
+static bool handle_gl_check(const char* err_location) {
+    GLint errcode = glGetError();
+    if (errcode != GL_NO_ERROR) {
+        fprintf(stderr, "GL error after: %s\n", err_location);
+        return true;
+    }
+    return false;
+}
+
+#define GL_CHECK(x, f) { x; if (handle_gl_check(#x)) f; }
 
 GLuint gfx_classify_texture(GfxTexture* t);
 
