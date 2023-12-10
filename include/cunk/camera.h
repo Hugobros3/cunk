@@ -13,7 +13,7 @@ typedef struct {
 
 Vec3f camera_get_forward_vec(const Camera*);
 Vec3f camera_get_left_vec(const Camera*);
-Mat4f camera_get_view_mat4(const Camera*, const Window*);
+Mat4f camera_get_view_mat4(const Camera*, size_t, size_t);
 
 typedef struct {
     float fly_speed, mouse_sensitivity;
@@ -21,6 +21,9 @@ typedef struct {
     unsigned mouse_was_held: 1;
 } CameraFreelookState;
 
+#ifdef CUNK_GRAPHICS_H
+/// Include graphics.h first to use this!
 void camera_move_freelook(Camera*, Window*, CameraFreelookState*);
+#endif
 
 #endif

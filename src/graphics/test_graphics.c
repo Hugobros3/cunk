@@ -209,7 +209,9 @@ static void draw_cubes() {
     gfx_cmd_use_shader(ctx, shader);
 
     Mat4f matrix = identity_mat4f;
-    matrix = mul_mat4f(camera_get_view_mat4(&camera, window), matrix);
+    size_t width, height;
+    gfx_get_window_size(window, &width, &height);
+    matrix = mul_mat4f(camera_get_view_mat4(&camera, width, height), matrix);
 
     for (int i = 0; i < 16; i++) {
         char* str = format_string("myMatrix._0._%d", i);
