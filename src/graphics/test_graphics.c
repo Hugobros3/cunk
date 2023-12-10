@@ -2,6 +2,7 @@
 #include "cunk/math.h"
 #include "cunk/print.h"
 #include "cunk/io.h"
+#include "cunk/camera.h"
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"

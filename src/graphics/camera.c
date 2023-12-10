@@ -1,5 +1,7 @@
 #include "graphics_private.h"
 
+#include "cunk/camera.h"
+
 #include "stdio.h"
 #include <assert.h>
 #include <math.h>
