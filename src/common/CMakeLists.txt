@@ -8,3 +8,4 @@ target_link_libraries(common PRIVATE ZLIB::ZLIB)
 
 link_libraries(common)
 add_executable(test_bit_utils test_bit_utils.c)
+add_test(NAME test_bit_utils COMMAND test_bit_utils)
