@@ -5,10 +5,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-bool read_file(const char* filename, size_t* out_size, char** out_buffer);
-bool file_exists(const char* filename);
-bool folder_exists(const char* filename);
-
 typedef enum {
     ZLib_Deflate, ZLib_Zlib, ZLib_GZip
 } ZLibMode;
