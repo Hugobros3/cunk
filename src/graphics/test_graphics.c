@@ -2,8 +2,7 @@
 #include "cunk/math.h"
 #include "cunk/print.h"
 #include "cunk/io.h"
-
-#include "../common/common_private.h"
+#include "cunk/camera.h"
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -22,7 +21,7 @@ static GfxShader* shader;
 static GfxBuffer* buffer;
 static GfxTexture* tex;
 
-GLFWwindow* get_glfw_handle(Window*);
+GLFWwindow* gfx_get_glfw_handle(Window*);
 
 float geometryData[] = {
     -1.0, -1.0, -1.0,   0.0, 0.0,
@@ -233,7 +232,7 @@ static int frame = 0;
 
 int main() {
     window = gfx_create_window("Hello", 640, 480, &ctx);
-    glfwSetKeyCallback(get_glfw_handle(window), key_callback);
+    glfwSetKeyCallback(gfx_get_glfw_handle(window), key_callback);
 
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
@@ -248,13 +247,13 @@ int main() {
 
     glfwSwapInterval(config.vsync ? 1 : 0);
 
-    while (!glfwWindowShouldClose(get_glfw_handle(window))) {
+    while (!glfwWindowShouldClose(gfx_get_glfw_handle(window))) {
         double then = glfwGetTime();
         camera_move_freelook(&camera, window, &camera_state);
 
         draw_cubes();
 
-        glfwSwapBuffers(get_glfw_handle(window));
+        glfwSwapBuffers(gfx_get_glfw_handle(window));
         if (config.finish)
             gfx_wait_for_idle();
 
