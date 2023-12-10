@@ -11,7 +11,7 @@ Window* create_window(const char* title, int width, int height, GfxCtx** ctx) {
     win->width = width;
     win->height = height;
     glfwMakeContextCurrent(win->handle);
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    glewInit();
     
     if (ctx) {
         *ctx = calloc(1, sizeof(GfxCtx));
@@ -82,7 +82,7 @@ void gfx_cmd_set_shader_extern(GfxCtx* ctx, const char* name, void* data) {
         int len;
         GLenum type;
         GL_CHECK(glGetActiveUniform(ctx->shader->program, i, 32, &len, &size, &type, uname), return);
-        int loc = glad_glGetUniformLocation(ctx->shader->program, name);
+        int loc = glGetUniformLocation(ctx->shader->program, name);
         if (strcmp(name, uname) == 0) {
             switch(type) {
                 case GL_FLOAT_MAT4: GL_CHECK(glUniformMatrix4fv(loc, 1, GL_FALSE, data), return); break;
