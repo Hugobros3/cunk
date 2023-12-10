@@ -9,6 +9,7 @@ float checker(vec2 c) {
 }
 
 uniform int render_mode;
+uniform sampler2D the_texture;
 
 void main() {
     if (render_mode == 0)
@@ -16,5 +17,5 @@ void main() {
     else if (render_mode == 1)
         outputColor = vec4(texCoord, 0.0, 1.0);
     else
-        outputColor = vec4(1.0, 0.0, 0.0, 1.0);
+        outputColor = vec4(texture2D(the_texture, texCoord * 4.0).rgb, 1.0);
 }

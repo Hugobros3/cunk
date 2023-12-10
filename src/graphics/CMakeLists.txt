@@ -1,4 +1,4 @@
-add_library(graphics STATIC graphics.c shader.c buffer.c camera.c window.c)
+add_library(graphics STATIC graphics.c shader.c buffer.c camera.c texture.c window.c)
 
 target_include_directories(graphics PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)

@@ -18,6 +18,7 @@ static Window* window;
 static GfxCtx* ctx;
 static GfxShader* shader;
 static GfxBuffer* buffer;
+static GfxTexture* tex;
 
 GLFWwindow* get_glfw_handle(Window*);
 
@@ -109,13 +110,51 @@ static void init_cubes() {
     free(geom_tmp);
 }
 
+static void init_tex() {
+    GfxTexFormat f = { .base = GFX_TCF_U8_UNORM, .num_components = 3 };
+    unsigned char tex_data[256 * 3];
+    for (size_t x = 0; x < 16; x++) {
+        for (size_t y = 0; y < 16; y++) {
+            tex_data[(x * 16 + y) * 3 + 0] = 255;
+            tex_data[(x * 16 + y) * 3 + 1] = 48;
+            tex_data[(x * 16 + y) * 3 + 2] = 48;
+        }
+    }
+    for (size_t x = 0; x < 16; x++) {
+        int y;
+        y = 0;
+        tex_data[(y * 16 + x) * 3 + 0] = 255;
+        tex_data[(y * 16 + x) * 3 + 1] = 255;
+        tex_data[(y * 16 + x) * 3 + 2] = 255;
+        y = 8;
+        tex_data[(y * 16 + x) * 3 + 0] = 255;
+        tex_data[(y * 16 + x) * 3 + 1] = 255;
+        tex_data[(y * 16 + x) * 3 + 2] = 255;
+    }
+    int x = 0, by = 0;
+    for (size_t y = by; y < by + 8; y++) {
+        tex_data[(y * 16 + x) * 3 + 0] = 255;
+        tex_data[(y * 16 + x) * 3 + 1] = 255;
+        tex_data[(y * 16 + x) * 3 + 2] = 255;
+    }
+    x = 8; by = 8;
+    for (size_t y = by; y < by + 8; y++) {
+        tex_data[(y * 16 + x) * 3 + 0] = 255;
+        tex_data[(y * 16 + x) * 3 + 1] = 255;
+        tex_data[(y * 16 + x) * 3 + 2] = 255;
+    }
+    tex = gfx_create_texture(ctx, 16, 16, 0, f);
+    gfx_upload_texture(tex, tex_data);
+}
+
 static void key_callback(GLFWwindow* handle, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS)
         return;
 
     switch (key) {
         case GLFW_KEY_1:
-            config.render_mode ^= 1;
+            config.render_mode += 1;
+            config.render_mode %= 3;
             break;
         case GLFW_KEY_2:
             config.wireframe ^= true;
@@ -174,6 +213,8 @@ static void draw_cubes() {
     gfx_cmd_set_shader_extern(ctx, "myMatrix", &matrix.arr);
     gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);
 
+    gfx_cmd_set_shader_extern(ctx, "the_texture", tex);
+
     gfx_cmd_set_vertex_input(ctx, "vertexIn", buffer, 3, sizeof(float) * 5, 0);
     gfx_cmd_set_vertex_input(ctx, "texCoordIn", buffer, 2, sizeof(float) * 5, sizeof(float) * 3);
 
@@ -194,6 +235,7 @@ int main() {
     read_file("../shaders/test.fs", &test_fs_size, &test_fs);
     shader = gfx_create_shader(ctx, test_vs, test_fs);
     init_cubes();
+    init_tex();
 
     fflush(stdout);
     fflush(stderr);

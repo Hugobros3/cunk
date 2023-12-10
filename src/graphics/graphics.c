@@ -71,12 +71,21 @@ void gfx_cmd_set_shader_extern(GfxCtx* ctx, const char* name, void* data) {
                 case GL_INT: GL_CHECK(glUniform1i(loc, *((int*) data)), return); break;
                 case GL_INT_VEC2: GL_CHECK(glUniform2iv(loc, 1, data), return); break;
                 case GL_INT_VEC3: GL_CHECK(glUniform3iv(loc, 1, data), return); break;
+                case GL_SAMPLER_1D:
+                case GL_SAMPLER_2D:
+                case GL_SAMPLER_3D: {
+                    GLuint slot = ctx->shader->texture_slots[i];
+                    glActiveTexture(GL_TEXTURE0 + slot);
+                    GfxTexture* tex = (GfxTexture*) data;
+                    glBindTexture(gfx_classify_texture(tex), tex->handle);
+                    GL_CHECK(glUniform1i(loc, slot), return); break;
+                }
                 default: abort(); // todo
             }
             return;
         }
     }
-    printf("could not find shader exterm %s amongst %d\n", name, num_active_uniforms);
+    printf("could not find shader extern %s amongst %d\n", name, num_active_uniforms);
 }
 
 void gfx_cmd_set_vertex_input(GfxCtx* ctx, const char* name, GfxBuffer* buf, int components, size_t stride, size_t offset) {

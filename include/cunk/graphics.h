@@ -10,12 +10,27 @@ typedef struct Window_ Window;
 typedef struct GfxCtx_ GfxCtx;
 typedef struct GfxShader_ GfxShader;
 typedef struct GfxBuffer_ GfxBuffer;
+typedef struct GfxTexture_ GfxTexture;
 
 Window* gfx_create_window(const char* title, int width, int height, GfxCtx**);
 GfxShader* gfx_create_shader(GfxCtx*, const char* vs, const char* fs);
+
 GfxBuffer* gfx_create_buffer(GfxCtx*, size_t);
 void gfx_copy_to_buffer(GfxBuffer*, void*, size_t);
 void gfx_destroy_buffer(GfxBuffer*);
+
+typedef enum {
+    GFX_TCF_U8_UNORM,
+    GFX_TCF_I32,
+    GFX_TCF_F32,
+} GfxTexCompFormat;
+typedef struct {
+    GfxTexCompFormat base;
+    unsigned num_components;
+} GfxTexFormat;
+GfxTexture* gfx_create_texture(GfxCtx*, unsigned width, unsigned height, unsigned depth, GfxTexFormat);
+void gfx_upload_texture(GfxTexture*, void* data);
+void gfx_destroy_texture(GfxTexture*);
 
 void gfx_cmd_resize_viewport(GfxCtx*, Window*);
 void gfx_cmd_clear(GfxCtx*);

@@ -27,13 +27,22 @@ struct GfxCtx_ {
 
 struct GfxShader_ {
     GLuint vertex, fragment, program;
+    GLuint* texture_slots;
 };
 
 struct GfxBuffer_ {
     size_t size;
-    GLint vbo;
+    GLuint vbo;
+};
+
+struct GfxTexture_ {
+    GLuint handle;
+    size_t width, height, depth;
+    GfxTexFormat format;
 };
 
 #define GL_CHECK(x, f) { x; GLint errcode = glGetError(); if (errcode != GL_NO_ERROR) { fprintf(stderr, "GL error after: " #x "\n"); f; } }
+
+GLuint gfx_classify_texture(GfxTexture* t);
 
 #endif
