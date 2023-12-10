@@ -209,7 +209,9 @@ static void draw_cubes() {
     gfx_cmd_use_shader(ctx, shader);
 
     Mat4f matrix = identity_mat4f;
-    matrix = mul_mat4f(camera_get_view_mat4(&camera, window), matrix);
+    size_t width, height;
+    gfx_get_window_size(window, &width, &height);
+    matrix = mul_mat4f(camera_get_view_mat4(&camera, width, height), matrix);
 
     gfx_cmd_set_shader_extern(ctx, "myMatrix", &matrix.arr);
     gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);

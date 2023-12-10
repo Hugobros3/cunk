@@ -31,6 +31,13 @@ Window* gfx_create_window(const char* title, int width, int height, GfxCtx** ctx
     return win;
 }
 
+void gfx_get_window_size(Window* win, size_t* out_width, size_t* out_height) {
+    int w, h;
+    glfwGetWindowSize(win->handle, &w, &h);
+    *out_width = w;
+    *out_height = h;
+}
+
 GLFWwindow* get_glfw_handle(Window* w) { return w->handle; }
 
 void gfx_cmd_resize_viewport(GfxCtx* ctx, Window* window) {

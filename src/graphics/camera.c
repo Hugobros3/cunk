@@ -13,11 +13,11 @@ static Mat4f camera_rotation_matrix(const Camera* camera) {
     return matrix;
 }
 
-Mat4f camera_get_view_mat4(const Camera* camera, const Window* window) {
+Mat4f camera_get_view_mat4(const Camera* camera, size_t width, size_t height) {
     Mat4f matrix = identity_mat4f;
     matrix = mul_mat4f(translate_mat4f(vec3f_neg(camera->position)), matrix);
     matrix = mul_mat4f(camera_rotation_matrix(camera), matrix);
-    float ratio = ((float) window->width) / ((float) window->height);
+    float ratio = ((float) width) / ((float) height);
     matrix = mul_mat4f(perspective_mat4f(ratio, camera->fov, 0.1f, 1000.f), matrix);
     return matrix;
 }
