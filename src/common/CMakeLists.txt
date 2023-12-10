@@ -1,4 +1,6 @@
 add_library(common SHARED util.c io.c mat.c arena.c print.c zlib_wrap.c)
+target_include_directories(common PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 target_link_libraries(common PUBLIC m)
 
 find_package(ZLIB REQUIRED)
