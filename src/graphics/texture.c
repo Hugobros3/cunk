@@ -41,6 +41,7 @@ static GLenum get_texture_format_format(GfxTexFormat* f) {
 static GLenum get_texture_format_type(GfxTexCompFormat cf) {
     switch (cf) {
         case GFX_TCF_UNORM8: return GL_UNSIGNED_BYTE;
+        case GFX_TCF_I8: return GL_UNSIGNED_BYTE;
         case GFX_TCF_I32: return GL_UNSIGNED_INT;
         case GFX_TCF_F32: return GL_FLOAT;
     }
