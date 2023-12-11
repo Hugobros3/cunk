@@ -23,6 +23,7 @@ void gfx_destroy_buffer(GfxBuffer*);
 
 #define TexCompFormats(Mk) \
 Mk(8, UNORM) \
+Mk(8, I) \
 Mk(32, I) \
 Mk(32, F) \
 
