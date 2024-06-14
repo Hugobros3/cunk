@@ -44,15 +44,6 @@ int main(int argc, char** argv) {
         const NBT_LongArray* block_state_arr = cunk_nbt_extract_long_array(block_states);
         int palette_size = palette->body.p_list.count;
 
-        bool is_air[palette_size];
-        for (size_t j = 0; j < palette_size; j++) {
-            const NBT_Compound* color = &palette->body.p_list.bodies[j].p_compound;
-            const char* name = cunk_nbt_compound_direct_access(color, "Name");
-            assert(name);
-            if (strcmp(name, "minecraft:air") == 0)
-                is_air[j] = true;
-        }
-
         int bits = needed_bits(palette_size);
         int longbits = block_state_arr->count * sizeof(int64_t) * CHAR_BIT;
         printf("%d %d %d %d\n", palette_size, bits, longbits, bits * 16 * 16 * 16);
