@@ -172,7 +172,11 @@ static void draw_cubes() {
     Mat4f matrix = identity_mat4f;
     matrix = mul_mat4f(camera_get_view_mat4(&camera, window), matrix);
 
-    gfx_cmd_set_shader_extern(ctx, "myMatrix", &matrix.arr);
+    for (int i = 0; i < 16; i++) {
+        char* str = format_string("myMatrix._0._%d", i);
+        gfx_cmd_set_shader_extern(ctx, str, &matrix.arr[i]);
+        free(str);
+    }
     //gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);
 
     gfx_cmd_set_vertex_input(ctx, "vertexIn", buffer, 3, sizeof(float) * 5, 0);

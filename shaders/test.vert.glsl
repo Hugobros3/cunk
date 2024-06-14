@@ -123,64 +123,101 @@ bool not(bool a) { return !a; }
 
 /* types: */
 
-struct Array_250 {
+struct Array_365 {
     int arr[1024];
+};
+
+struct struct_anon /* nominal */ {
+    float _0;
+    float _1;
+    float _2;
+    float _3;
+    float _4;
+    float _5;
+    float _6;
+    float _7;
+    float _8;
+    float _9;
+    float _10;
+    float _11;
+    float _12;
+    float _13;
+    float _14;
+    float _15;
+};
+
+struct union_mat4 /* nominal */ {
+    struct_anon _0;
 };
 
 /* declarations: */
 
-Array_250 memory_Private;
+Array_365 memory_Private;
 int stack_ptr = 0;
+attribute vec3 vertexIn;
+uniform union_mat4 myMatrix;
+attribute vec2 texCoordIn;
 varying vec2 texCoord;
 void main();
 void generated_init();
 /* definitions: */
 
 void main() { 
-    int alloca_251;
-    alloca_251 = 0;
     generated_init();
-    int _252 = stack_ptr;
-    vec2 _253 = texCoord;
-    float _254 = (_253.x);
-    float _255 = _254 * 16.0000000f;
-    int _256 = int(_255);
-    int _257 = mod(_256, 2);
-    bool _258 = _257 == 1;
-    int _259 = (_258) ? (1) : (0);
-    vec2 _260 = texCoord;
-    float _261 = (_260.y);
-    float _262 = _261 * 16.0000000f;
-    int _263 = int(_262);
-    int _264 = mod(_263, 2);
-    bool _265 = _264 == 1;
-    int _266 = (_265) ? (1) : (0);
-    int _267 = and(_259, 1);
-    bool _268 = _267 == 1;
-    int _269 = (_268) ? (1) : (0);
-    int _270 = and(_266, 1);
-    bool _271 = _270 == 1;
-    int _272 = (_271) ? (1) : (0);
-    int _273 = xor(_269, _272);
-    bool _274 = _273 != 0;
-    int _275 = (_274) ? (1) : (0);
-    int _276 = and(_275, 1);
-    bool _277 = _276 == 1;
-    alloca_251 = 1;
-    if (_277) { 
-        gl_FragData[0] = vec4(1.00000000f, 1.00000000f, 0.00000000f, 1.00000000f);
-        alloca_251 = 0;
-    } else {
-        gl_FragData[0] = vec4(0.00000000f, 0.00000000f, 0.00000000f, 1.00000000f);
-        alloca_251 = 0;
-    }
-    int _278 = alloca_251;
-    bool _279 = _278 == 0;
-    if (_279) { 
-        stack_ptr = _252;
-        return;
-    }
-    //unreachable
+    int _366 = stack_ptr;
+    vec3 _367 = vertexIn;
+    float _370 = ((myMatrix._0)._0);
+    float _371 = ((myMatrix._0)._1);
+    float _372 = ((myMatrix._0)._2);
+    float _373 = ((myMatrix._0)._3);
+    float _374 = ((myMatrix._0)._4);
+    float _375 = ((myMatrix._0)._5);
+    float _376 = ((myMatrix._0)._6);
+    float _377 = ((myMatrix._0)._7);
+    float _378 = ((myMatrix._0)._8);
+    float _379 = ((myMatrix._0)._9);
+    float _380 = ((myMatrix._0)._10);
+    float _381 = ((myMatrix._0)._11);
+    float _382 = ((myMatrix._0)._12);
+    float _383 = ((myMatrix._0)._13);
+    float _384 = ((myMatrix._0)._14);
+    float _385 = ((myMatrix._0)._15);
+    float _386 = (_367.x);
+    float _387 = (_367.y);
+    float _388 = (_367.z);
+    float _389 = _387 * _374;
+    float _390 = (_370 * _386) + _389;
+    float _391 = (_378 * _388) + _390;
+    float _392 = _391 + _382;
+    float _393 = _387 * _375;
+    float _394 = (_371 * _386) + _393;
+    float _395 = (_379 * _388) + _394;
+    float _396 = _395 + _383;
+    float _397 = _387 * _376;
+    float _398 = (_372 * _386) + _397;
+    float _399 = (_380 * _388) + _398;
+    float _400 = _399 + _384;
+    float _401 = _387 * _377;
+    float _402 = (_373 * _386) + _401;
+    float _403 = (_381 * _388) + _402;
+    float _404 = _403 + _385;
+    vec4 modified_407 = vec4(0.00000000f, 0.00000000f, 0.00000000f, 0.00000000f);
+    (modified_407.x) = _392;
+    vec4 _408 = modified_407;
+    vec4 modified_409 = _408;
+    (modified_409.y) = _396;
+    vec4 _410 = modified_409;
+    vec4 modified_411 = _410;
+    (modified_411.z) = _400;
+    vec4 _412 = modified_411;
+    vec4 modified_413 = _412;
+    (modified_413.w) = _404;
+    vec4 _414 = modified_413;
+    gl_Position = _414;
+    vec2 _415 = texCoordIn;
+    texCoord = _415;
+    stack_ptr = _366;
+    return;
  }
 void generated_init() { 
     stack_ptr = 0;
