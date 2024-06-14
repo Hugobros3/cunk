@@ -233,7 +233,7 @@ int main() {
         int ifps = (int) fps;
 
         const char* t = format_string("Cubes: %d, FPS: %d", config.num_cubes, ifps);
-        glfwSetWindowTitle(get_glfw_handle(window), t);
+        //glfwSetWindowTitle(get_glfw_handle(window), t);
         free(t);
 
         last_frames_times[frame % SMOOTH_FPS_ACC_FRAMES] = now;
