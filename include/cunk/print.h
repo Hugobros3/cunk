@@ -18,9 +18,9 @@ void cunk_flush(Printer*);
 /// Prints a size using appropriate KiB/MiB/GiB suffixes
 void cunk_print_size_suffix(Printer*, size_t, int extra);
 
-const char* cunk_printer_growy_unrwap(Printer* p);
+const char* cunk_printer_growy_unwrap(Printer* p);
 Growy* cunk_new_growy();
-#define format_string(f, ...) cunk_printer_growy_unrwap(cunk_print(cunk_open_growy_as_printer(cunk_new_growy()), (f), __VA_ARGS__))
+#define format_string(f, ...) cunk_printer_growy_unwrap(cunk_print(cunk_open_growy_as_printer(cunk_new_growy()), (f), __VA_ARGS__))
 
 const char* replace_string(const char* source, const char* match, const char* replace_with);
 

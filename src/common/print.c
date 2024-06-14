@@ -141,7 +141,7 @@ void cunk_print_size_suffix(Printer* p, size_t s, int extra) {
     cunk_print(p, "%llu%s", s, suffixes[i]);
 }
 
-const char* cunk_printer_growy_unrwap(Printer* p) {
+const char* cunk_printer_growy_unwrap(Printer* p) {
     assert(p->output == PoGrowy);
     return cunk_growy_deconstruct(p->growy);
 }
