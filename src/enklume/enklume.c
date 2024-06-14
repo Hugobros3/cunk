@@ -77,7 +77,7 @@ McRegion* cunk_open_mcregion(McWorld* world, int x, int z) {
         goto fail;
 
     size_t size;
-    char* contents;
+    void* contents;
     if (!read_file(path, &size, &contents))
         goto fail;
 

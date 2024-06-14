@@ -7,7 +7,7 @@
 static size_t init_size = 4096;
 
 struct Growy_ {
-    char* buffer;
+    void* buffer;
     size_t used, size;
 };
 
@@ -21,7 +21,7 @@ Growy* cunk_new_growy() {
     return g;
 }
 
-void cunk_growy_append_bytes(Growy* g, size_t s, char* bytes) {
+void cunk_growy_append_bytes(Growy* g, size_t s, const void* bytes) {
     size_t old_used = g->used;
     g->used += s;
     while (g->used >= g->size) {
@@ -36,17 +36,17 @@ void cunk_growy_destroy(Growy* g) {
     free(g);
 }
 
-char* cunk_growy_deconstruct(Growy* g) {
-    char* buf = g->buffer;
+void* cunk_growy_deconstruct(Growy* g) {
+    void* buf = g->buffer;
     free(g);
     return buf;
 }
 
 size_t cunk_growy_size(const Growy* g) { return g->used; }
-char* cunk_growy_data(const Growy* g) { return g->buffer; }
+void* cunk_growy_data(const Growy* g) { return g->buffer; }
 
 typedef struct {
-    char* alloc;
+    void* alloc;
     size_t used, size;
 } Page;
 
@@ -71,7 +71,7 @@ size_t cunk_arena_size(const Arena* a) {
     return a->overall_size;
 }
 
-char* cunk_arena_alloc_bytes(Arena* a, size_t size) {
+void* cunk_arena_alloc_bytes(Arena* a, size_t size) {
     Page* last_page = NULL;
     if (a->pages_count > 0)
         last_page = &((Page*) cunk_growy_data(a->pages))[a->pages_count - 1];

@@ -40,7 +40,7 @@ static int format_bits(ZLibMode mode) {
     }
 }
 
-bool cunk_inflate(ZLibMode mode, size_t src_size, const char* input_data, Growy* output) {
+bool cunk_inflate(ZLibMode mode, size_t src_size, const void* input_data, Growy* output) {
     int ret;
     z_stream strm;
     unsigned char out[ZLIB_CHUNK_SIZE];

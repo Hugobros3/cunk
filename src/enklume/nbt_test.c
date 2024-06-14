@@ -11,7 +11,7 @@
 int main(int argc, char** argv) {
     Printer* p = cunk_open_file_as_printer(stdout);
 
-    char* buf;
+    void* buf;
     size_t buf_size;
     printf("Using test file %s\n", argv[1]);
     if (!read_file(argv[1], &buf_size, &buf))

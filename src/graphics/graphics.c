@@ -110,7 +110,7 @@ void gfx_cmd_set_vertex_input(GfxCtx* ctx, const char* name, GfxBuffer* buf, int
     }
 
     glEnableVertexAttribArray(location);
-    GL_CHECK(glVertexAttribPointer(location, components, GL_FLOAT, GL_FALSE, stride, offset), return);
+    GL_CHECK(glVertexAttribPointer(location, components, GL_FLOAT, GL_FALSE, stride, (void*) offset), return);
 }
 
 void gfx_cmd_draw_arrays(GfxCtx* ctx, size_t start, size_t num) {

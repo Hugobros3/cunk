@@ -200,8 +200,8 @@ int main(int argc, char* argv[]) {
 
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
-    read_file("../shaders/mc_viewer.vs", &test_vs_size, &test_vs);
-    read_file("../shaders/mc_viewer.fs", &test_fs_size, &test_fs);
+    read_file("../shaders/mc_viewer.vs", &test_vs_size, (void**) &test_vs);
+    read_file("../shaders/mc_viewer.fs", &test_fs_size, (void**) &test_fs);
     shader = create_shader(ctx, test_vs, test_fs);
 
     for (int x = 0; x < WORLD_SIZE; x++) {

@@ -40,7 +40,8 @@ unsigned int needed_bits(unsigned int n) {
     return bits;
 }
 
-uint64_t fetch_bits(const char* buf, size_t bit_pos, unsigned int width) {
+uint64_t fetch_bits(const void* buf, size_t bit_pos, unsigned int width) {
+    const char* cbuf = buf;
     int64_t acc = 0;
     size_t pos = SIZE_MAX;
     char last_fetch;
@@ -48,7 +49,7 @@ uint64_t fetch_bits(const char* buf, size_t bit_pos, unsigned int width) {
         size_t new_pos = (bit_pos + bit) / CHAR_BIT;
         if (new_pos != pos) {
             pos = new_pos;
-            last_fetch = buf[pos];
+            last_fetch = cbuf[pos];
         }
         int64_t b = (last_fetch >> ((bit_pos + bit) & 0x7)) & 0x1;
         acc |= (b << bit);
@@ -56,7 +57,8 @@ uint64_t fetch_bits(const char* buf, size_t bit_pos, unsigned int width) {
     return acc;
 }
 
-uint64_t fetch_bits_long_arr(const uint64_t* buf, bool big_endian, size_t bit_pos, unsigned int width) {
+uint64_t fetch_bits_long_arr(const void* buf, bool big_endian, size_t bit_pos, unsigned int width) {
+    const int64_t* lbuf = buf;
 #define LONG_BITS (CHAR_BIT * sizeof(int64_t))
     int64_t acc = 0;
 
@@ -66,7 +68,7 @@ uint64_t fetch_bits_long_arr(const uint64_t* buf, bool big_endian, size_t bit_po
         size_t new_pos = (bit_pos + bit) / LONG_BITS;
         if (new_pos != pos) {
             pos = new_pos;
-            last_fetch = buf[pos];
+            last_fetch = lbuf[pos];
             if (big_endian)
                 last_fetch = swap_endianness(8, last_fetch);
         }

@@ -24,7 +24,7 @@ static const char* sanitize_path(const char* path) {
     return format_string("%s", path);
 }
 
-bool read_file(const char* filename, size_t* out_size, char** out_buffer) {
+bool read_file(const char* filename, size_t* out_size, void** out_buffer) {
 	char* buffer = NULL;
 	long length;
 	FILE* f = fopen(filename, "rb");
