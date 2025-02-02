@@ -153,6 +153,9 @@ static CameraFreelookState camera_state = {
     .fly_speed = 0.25f,
     .mouse_sensitivity = 2.0f
 };
+static CameraInput camera_input;
+
+void gfx_camera_update(Window* w, CameraInput* input);
 
 static void draw_chunks() {
     gfx_cmd_resize_viewport(ctx, window);
@@ -234,7 +237,8 @@ int main(int argc, char* argv[]) {
 
     while (!glfwWindowShouldClose(gfx_get_glfw_handle(window))) {
         double then = glfwGetTime();
-        camera_move_freelook(&camera, window, &camera_state);
+        gfx_camera_update(window, &camera_input);
+        camera_move_freelook(&camera, &camera_input, &camera_state);
 
         draw_chunks();
 

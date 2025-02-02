@@ -1,8 +1,7 @@
-#include "graphics_private.h"
-
 #include "cunk/camera.h"
 
-#include "stdio.h"
+#include <stdio.h>
+#include <stdbool.h>
 #include <assert.h>
 #include <math.h>
 
@@ -37,33 +36,45 @@ Vec3f camera_get_left_vec(const Camera* cam) {
     return vec3f_scale(result.xyz, 1.0f / result.w);
 }
 
-void camera_move_freelook(Camera* cam, Window* w, CameraFreelookState* state) {
-    assert(cam && w && state);
-    bool mouse_held = glfwGetMouseButton(w->handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-    if (mouse_held) {
-        double mouse_x, mouse_y;
-        glfwGetCursorPos(w->handle, &mouse_x, &mouse_y);
+void camera_move_freelook(Camera* cam, CameraInput* input, CameraFreelookState* state) {
+    assert(cam && input && state);
+    if (input->mouse_held) {
         if (state->mouse_was_held) {
-            double diff_x = mouse_x - state->last_mouse_x;
-            double diff_y = mouse_y - state->last_mouse_y;
+            double diff_x = input->mouse_x - state->last_mouse_x;
+            double diff_y = input->mouse_y - state->last_mouse_y;
             cam->rotation.yaw   += (float) diff_x / (180.0f * (float) M_PI) * state->mouse_sensitivity;
             cam->rotation.pitch += (float) diff_y / (180.0f * (float) M_PI) * state->mouse_sensitivity;
         } else
-            glfwSetInputMode(w->handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            input->should_capture = true;
 
-        state->last_mouse_x = mouse_x;
-        state->last_mouse_y = mouse_y;
+        state->last_mouse_x = input->mouse_x;
+        state->last_mouse_y = input->mouse_y;
     } else
-        glfwSetInputMode(w->handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    state->mouse_was_held = mouse_held;
+        input->should_capture = false;
+    state->mouse_was_held = input->mouse_held;
 
-    if (glfwGetKey(w->handle, GLFW_KEY_W) == GLFW_PRESS)
+    if (input->keys.forward)
         cam->position = vec3f_add(cam->position, vec3f_scale(camera_get_forward_vec(cam), state->fly_speed));
-    else if (glfwGetKey(w->handle, GLFW_KEY_S) == GLFW_PRESS)
+    else if (input->keys.back)
         cam->position = vec3f_sub(cam->position, vec3f_scale(camera_get_forward_vec(cam), state->fly_speed));
 
-    if (glfwGetKey(w->handle, GLFW_KEY_D) == GLFW_PRESS)
+    if (input->keys.right)
         cam->position = vec3f_sub(cam->position, vec3f_scale(camera_get_left_vec(cam), state->fly_speed));
-    else if (glfwGetKey(w->handle, GLFW_KEY_A) == GLFW_PRESS)
+    else if (input->keys.left)
         cam->position = vec3f_add(cam->position, vec3f_scale(camera_get_left_vec(cam), state->fly_speed));
+}
+
+#include "graphics_private.h"
+
+void gfx_camera_update(Window* w, CameraInput* input) {
+    input->mouse_held = glfwGetMouseButton(w->handle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    glfwGetCursorPos(w->handle, &input->mouse_x, &input->mouse_y);
+    input->keys.forward = glfwGetKey(w->handle, GLFW_KEY_W) == GLFW_PRESS;
+    input->keys.back = glfwGetKey(w->handle, GLFW_KEY_S) == GLFW_PRESS;
+    input->keys.left = glfwGetKey(w->handle, GLFW_KEY_A) == GLFW_PRESS;
+    input->keys.right = glfwGetKey(w->handle, GLFW_KEY_D) == GLFW_PRESS;
+    if (input->should_capture)
+        glfwSetInputMode(w->handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    else
+        glfwSetInputMode(w->handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }

@@ -3,6 +3,9 @@
 
 #include "cunk/math.h"
 
+#include <stddef.h>
+#include <stdbool.h>
+
 typedef struct {
     Vec3f position;
     struct {
@@ -21,9 +24,20 @@ typedef struct {
     unsigned mouse_was_held: 1;
 } CameraFreelookState;
 
+typedef struct {
+    bool mouse_held;
+    bool should_capture;
+    double mouse_x, mouse_y;
+    struct {
+        bool forward, back, left, right;
+    } keys;
+} CameraInput;
+
+void camera_move_freelook(Camera*, CameraInput*, CameraFreelookState*);
+
 #ifdef CUNK_GRAPHICS_H
 /// Include graphics.h first to use this!
-void camera_move_freelook(Camera*, Window*, CameraFreelookState*);
+void gfx_camera_update(Window* w, CameraInput* input);
 #endif
 
 #endif
