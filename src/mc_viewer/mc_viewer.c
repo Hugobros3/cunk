@@ -5,6 +5,7 @@
 #include "cunk/enklume.h"
 #include "cunk/nbt.h"
 #include "cunk/io.h"
+#include "cunk/camera.h"
 
 #include "chunk.h"
 
@@ -25,7 +26,7 @@ static Window* window;
 static GfxCtx* ctx;
 static GfxShader* shader;
 
-GLFWwindow* get_glfw_handle(Window*);
+GLFWwindow* gfx_get_glfw_handle(Window*);
 
 struct {
     bool wireframe, face_culling, depth_testing;
@@ -58,7 +59,7 @@ static void init_chunk(Chunk* chunk) {
 
 static ChunkMesh* update_chunk_mesh(const Chunk* chunk, ChunkMesh* mesh) {
     if (mesh) {
-        destroy_buffer(mesh->buf);
+        gfx_destroy_buffer(mesh->buf);
     } else if (chunk) {
         mesh = malloc(sizeof(ChunkMesh));
         mesh->x = chunk->x;
@@ -75,8 +76,8 @@ static ChunkMesh* update_chunk_mesh(const Chunk* chunk, ChunkMesh* mesh) {
     size_t buffer_size = cunk_growy_size(g);
     char* buffer = cunk_growy_deconstruct(g);
 
-    mesh->buf = create_buffer(ctx, buffer_size);
-    copy_to_buffer(mesh->buf, buffer, buffer_size);
+    mesh->buf = gfx_create_buffer(ctx, buffer_size);
+    gfx_copy_to_buffer(mesh->buf, buffer, buffer_size);
     free(buffer);
     return mesh;
 }
@@ -165,7 +166,9 @@ static void draw_chunks() {
     gfx_cmd_use_shader(ctx, shader);
 
     Mat4f matrix = identity_mat4f;
-    matrix = mul_mat4f(camera_get_view_mat4(&camera, window), matrix);
+    size_t width, height;
+    gfx_get_window_size(window, &width, &height);
+    matrix = mul_mat4f(camera_get_view_mat4(&camera, width, height), matrix);
 
     gfx_cmd_set_shader_extern(ctx, "myMatrix", &matrix.arr);
     gfx_cmd_set_shader_extern(ctx, "render_mode", &config.render_mode);
@@ -196,14 +199,14 @@ static double last_frames_times[SMOOTH_FPS_ACC_FRAMES] = { 0 };
 static int frame = 0;
 
 int main(int argc, char* argv[]) {
-    window = create_window("Hello", 640, 480, &ctx);
-    glfwSetKeyCallback(get_glfw_handle(window), key_callback);
+    window = gfx_create_window("Hello", 640, 480, &ctx);
+    glfwSetKeyCallback(gfx_get_glfw_handle(window), key_callback);
 
     char* test_vs, *test_fs;
     size_t test_vs_size, test_fs_size;
     read_file("../shaders/mc_viewer.vs", &test_vs_size, &test_vs);
     read_file("../shaders/mc_viewer.fs", &test_fs_size, &test_fs);
-    shader = create_shader(ctx, test_vs, test_fs);
+    shader = gfx_create_shader(ctx, test_vs, test_fs);
 
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int z = 0; z < WORLD_SIZE; z++) {
@@ -229,13 +232,13 @@ int main(int argc, char* argv[]) {
 
     glfwSwapInterval(config.vsync ? 1 : 0);
 
-    while (!glfwWindowShouldClose(get_glfw_handle(window))) {
+    while (!glfwWindowShouldClose(gfx_get_glfw_handle(window))) {
         double then = glfwGetTime();
         camera_move_freelook(&camera, window, &camera_state);
 
         draw_chunks();
 
-        glfwSwapBuffers(get_glfw_handle(window));
+        glfwSwapBuffers(gfx_get_glfw_handle(window));
         if (config.finish)
             gfx_wait_for_idle();
 
@@ -261,7 +264,7 @@ int main(int argc, char* argv[]) {
         int ifps = (int) fps;
 
         const char* t = format_string("FPS: %d", ifps);
-        glfwSetWindowTitle(get_glfw_handle(window), t);
+        glfwSetWindowTitle(gfx_get_glfw_handle(window), t);
         free(t);
 
         last_frames_times[frame % SMOOTH_FPS_ACC_FRAMES] = now;
