@@ -1,10 +1,10 @@
-add_library(common SHARED util.c io.c mat.c arena.c print.c zlib_wrap.c)
-target_include_directories(common PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
-target_link_libraries(common PUBLIC m)
+add_library(cunk_common SHARED util.c io.c mat.c arena.c print.c zlib_wrap.c)
+target_include_directories(cunk_common PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(cunk_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_link_libraries(cunk_common PUBLIC m)
 
 find_package(ZLIB REQUIRED)
-target_link_libraries(common PRIVATE ZLIB::ZLIB)
+target_link_libraries(cunk_common PRIVATE ZLIB::ZLIB)
 
-link_libraries(common)
+link_libraries(cunk_common)
 add_executable(test_common_misc test_common_misc.c)

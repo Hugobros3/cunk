@@ -2,7 +2,7 @@ add_library(graphics STATIC graphics.c shader.c camera.c buffer.c texture.c wind
 
 target_include_directories(graphics PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
-target_link_libraries(graphics PRIVATE common)
+target_link_libraries(graphics PRIVATE cunk_common)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
