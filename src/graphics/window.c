@@ -36,7 +36,7 @@ static bool is_ext_supported(const char* name) {
     return false;
 }
 
-void debug_output_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar* message, const void* uptr) {
+static void debug_output_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar* message, const void* uptr) {
     fprintf(stderr, "Error: %s\n", message);
 }
 
