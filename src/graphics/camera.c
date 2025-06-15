@@ -5,35 +5,35 @@
 #include <assert.h>
 #include <math.h>
 
-static Mat4f camera_rotation_matrix(const Camera* camera) {
-    Mat4f matrix = identity_mat4f;
-    matrix = mul_mat4f(rotate_axis_mat4f(1, camera->rotation.yaw), matrix);
-    matrix = mul_mat4f(rotate_axis_mat4f(0, camera->rotation.pitch), matrix);
+static mat4 camera_rotation_matrix(const Camera* camera) {
+    mat4 matrix = identity_mat4;
+    matrix = mul_mat4(rotate_axis_mat4(1, camera->rotation.yaw), matrix);
+    matrix = mul_mat4(rotate_axis_mat4(0, camera->rotation.pitch), matrix);
     return matrix;
 }
 
-Mat4f camera_get_view_mat4(const Camera* camera, size_t width, size_t height) {
-    Mat4f matrix = identity_mat4f;
-    matrix = mul_mat4f(translate_mat4f(vec3f_neg(camera->position)), matrix);
-    matrix = mul_mat4f(camera_rotation_matrix(camera), matrix);
+mat4 camera_get_view_mat4(const Camera* camera, size_t width, size_t height) {
+    mat4 matrix = identity_mat4;
+    matrix = mul_mat4(translate_mat4(vec3_neg(camera->position)), matrix);
+    matrix = mul_mat4(camera_rotation_matrix(camera), matrix);
     float ratio = ((float) width) / ((float) height);
-    matrix = mul_mat4f(perspective_mat4f(ratio, camera->fov, 0.1f, 1000.f), matrix);
+    matrix = mul_mat4(perspective_mat4(ratio, camera->fov, 0.1f, 1000.f), matrix);
     return matrix;
 }
 
-Vec3f camera_get_forward_vec(const Camera* cam) {
-    Vec4f initial_forward = { .z = -1, .w = 1 };
+vec3 camera_get_forward_vec(const Camera* cam) {
+    vec4 initial_forward = { .z = -1, .w = 1 };
     // we invert the rotation matrix and use the front vector from the camera space to get the one in world space
-    Mat4f matrix = invert_mat4(camera_rotation_matrix(cam));
-    Vec4f result = mul_mat4f_vec4f(matrix, initial_forward);
-    return vec3f_scale(result.xyz, 1.0f / result.w);
+    mat4 matrix = invert_mat4(camera_rotation_matrix(cam));
+    vec4 result = mul_mat4_vec4(matrix, initial_forward);
+    return vec3_scale(result.xyz, 1.0f / result.w);
 }
 
-Vec3f camera_get_left_vec(const Camera* cam) {
-    Vec4f initial_forward = { .x = -1, .w = 1 };
-    Mat4f matrix = invert_mat4(camera_rotation_matrix(cam));
-    Vec4f result = mul_mat4f_vec4f(matrix, initial_forward);
-    return vec3f_scale(result.xyz, 1.0f / result.w);
+vec3 camera_get_left_vec(const Camera* cam) {
+    vec4 initial_forward = { .x = -1, .w = 1 };
+    mat4 matrix = invert_mat4(camera_rotation_matrix(cam));
+    vec4 result = mul_mat4_vec4(matrix, initial_forward);
+    return vec3_scale(result.xyz, 1.0f / result.w);
 }
 
 void camera_move_freelook(Camera* cam, CameraInput* input, CameraFreelookState* state) {
@@ -54,14 +54,14 @@ void camera_move_freelook(Camera* cam, CameraInput* input, CameraFreelookState* 
     state->mouse_was_held = input->mouse_held;
 
     if (input->keys.forward)
-        cam->position = vec3f_add(cam->position, vec3f_scale(camera_get_forward_vec(cam), state->fly_speed));
+        cam->position = vec3_add(cam->position, vec3_scale(camera_get_forward_vec(cam), state->fly_speed));
     else if (input->keys.back)
-        cam->position = vec3f_sub(cam->position, vec3f_scale(camera_get_forward_vec(cam), state->fly_speed));
+        cam->position = vec3_sub(cam->position, vec3_scale(camera_get_forward_vec(cam), state->fly_speed));
 
     if (input->keys.right)
-        cam->position = vec3f_sub(cam->position, vec3f_scale(camera_get_left_vec(cam), state->fly_speed));
+        cam->position = vec3_sub(cam->position, vec3_scale(camera_get_left_vec(cam), state->fly_speed));
     else if (input->keys.left)
-        cam->position = vec3f_add(cam->position, vec3f_scale(camera_get_left_vec(cam), state->fly_speed));
+        cam->position = vec3_add(cam->position, vec3_scale(camera_get_left_vec(cam), state->fly_speed));
 }
 
 #include "graphics_private.h"

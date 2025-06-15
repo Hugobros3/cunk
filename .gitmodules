@@ -1,0 +1,3 @@
+[submodule "nasl"]
+	path = nasl
+	url = https://github.com/shady-gang/nasl.git

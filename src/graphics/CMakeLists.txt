@@ -6,7 +6,7 @@ target_link_libraries(graphics PRIVATE cunk_common)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-target_link_libraries(graphics PUBLIC glfw)
+target_link_libraries(graphics PUBLIC glfw nasl)
 target_link_libraries(graphics PRIVATE GLEW::GLEW OpenGL::GL)
 
 add_executable(test_graphics test_graphics.c)

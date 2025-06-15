@@ -1,5 +1,6 @@
+#include "nasl/nasl.h"
+
 #include "cunk/graphics.h"
-#include "cunk/math.h"
 #include "cunk/print.h"
 #include "cunk/io.h"
 #include "cunk/camera.h"
@@ -95,8 +96,8 @@ static void init_cubes() {
     void* geom_tmp = malloc(buffer_size);
     float* fp_tmp = geom_tmp;
     for (size_t i = 0; i < config.num_cubes; i++) {
-        Vec3f offset = { frand(), frand(), frand() };
-        offset = vec3f_sub(vec3f_scale(offset, 128.0f), vec3f_ctor(64.0f));
+        vec3 offset = { frand(), frand(), frand() };
+        offset = vec3_sub(vec3_scale(offset, 128.0f), vec3_ctor(64.0f));
         for (int j = 0; j < 36; j++) {
             *(fp_tmp++) = geometryData[j * 5 + 0] + offset.x;
             *(fp_tmp++) = geometryData[j * 5 + 1] + offset.y;
@@ -211,10 +212,10 @@ static void draw_cubes() {
     gfx_cmd_set_draw_state(ctx, state);
     gfx_cmd_use_shader(ctx, shader);
 
-    Mat4f matrix = identity_mat4f;
+    mat4 matrix = identity_mat4;
     size_t width, height;
     gfx_get_window_size(window, &width, &height);
-    matrix = mul_mat4f(camera_get_view_mat4(&camera, width, height), matrix);
+    matrix = mul_mat4(camera_get_view_mat4(&camera, width, height), matrix);
 
     for (int i = 0; i < 16; i++) {
         char* str = format_string("myMatrix._0._%d", i);

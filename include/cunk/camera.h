@@ -1,22 +1,25 @@
 #ifndef CUNK_CAMERA_H
 #define CUNK_CAMERA_H
 
-#include "cunk/math.h"
+#include "math.h"
+
+#include "nasl/nasl.h"
+#include "nasl/nasl_mat.h"
 
 #include <stddef.h>
 #include <stdbool.h>
 
 typedef struct {
-    Vec3f position;
+    vec3 position;
     struct {
         float yaw, pitch;
     } rotation;
     float fov;
 } Camera;
 
-Vec3f camera_get_forward_vec(const Camera*);
-Vec3f camera_get_left_vec(const Camera*);
-Mat4f camera_get_view_mat4(const Camera*, size_t, size_t);
+vec3 camera_get_forward_vec(const Camera*);
+vec3 camera_get_left_vec(const Camera*);
+mat4 camera_get_view_mat4(const Camera*, size_t, size_t);
 
 typedef struct {
     float fly_speed, mouse_sensitivity;

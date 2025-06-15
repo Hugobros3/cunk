@@ -1,8 +1,6 @@
 #ifndef CUNK_GRAPHICS_H
 #define CUNK_GRAPHICS_H
 
-#include "cunk/math.h"
-
 #include <stddef.h>
 #include <stdbool.h>
 
