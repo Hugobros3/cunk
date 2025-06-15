@@ -7,6 +7,8 @@ set(CMAKE_C_EXTENSIONS ON)
 
 include(CTest)
 
+option(BUILD_SHARED_LIBS "Whether to use shared objects. Defaults to OFF because Windows DLL hell" OFF)
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

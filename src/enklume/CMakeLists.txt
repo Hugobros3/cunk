@@ -1,4 +1,4 @@
-add_library(enklume SHARED nbt.c nbt_print.c enklume.c)
+add_library(enklume nbt.c nbt_print.c enklume.c)
 target_link_libraries(enklume PUBLIC cunk_common)
 
 add_executable(nbt_test nbt_test.c)
